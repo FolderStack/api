@@ -1,0 +1,34 @@
+Resources:
+    # API Gateway
+    ApiGatewayRestApi:
+        Type: AWS::ApiGateway::RestApi
+        Properties:
+            Name: ${self:custom.currentStage}-${self:custom.serviceName}
+
+    EndPointMapping:
+        Type: 'AWS::ApiGateway::BasePathMapping'
+        DependsOn: 'ApiGatewayDeployment${sls:instanceId}'
+        Properties:
+            BasePath: '/api/v1/'
+            DomainName: ${ssm:/secureapp/${self:custom.currentStage}/ApiDomainName, null}
+            RestApiId: !Ref ApiGatewayRestApi
+            Stage: ${self:custom.currentStage}
+
+    ApiGatewayAuthorizer:
+        Type: AWS::ApiGateway::Authorizer
+        Properties:
+            AuthorizerResultTtlInSeconds: 300
+            Name: Auth0Authorizer
+            RestApiId:
+                Ref: ApiGatewayRestApi
+            Type: TOKEN
+            IdentitySource: method.request.header.Authorization
+            IdentityValidationExpression: ^[Bb]earer [-0-9a-zA-z\.]*$
+            AuthorizerUri:
+                Fn::Join:
+                    - ''
+                    - - 'arn:aws:apigateway:'
+                      - Ref: 'AWS::Region'
+                      - ':lambda:path/2015-03-31/functions/'
+                      - Fn::ImportValue: Auth0Authorizer-arn-${self:custom.currentStage}
+                      - '/invocations'

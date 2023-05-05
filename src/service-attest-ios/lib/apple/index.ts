@@ -1,0 +1,1 @@
+export { verifyAttestation } from './attestation';

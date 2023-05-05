@@ -1,0 +1,89 @@
+service: secureapp
+
+frameworkVersion: '3'
+
+package:
+    individually: false
+    excludeDevDependencies: true
+    include: 
+        - src/**/*.cer
+        - src/**/*.pem
+
+plugins:
+    - serverless-prune-plugin
+    - serverless-esbuild
+    - serverless-offline-sqs
+    - serverless-offline-sqs-dlq
+    - serverless-dynamodb-local
+    - serverless-offline-ssm
+    - serverless-offline
+
+custom:
+    prune:
+        automatic: true
+        number: 1
+    serviceName: api
+    currentStage: ${opt:stage, 'local'}
+    logLevels:  
+        production: warn
+        staging: warn
+        local: debug
+    logLevel: ${self:custom.logLevels.${self:custom.currentStage}, 'info'}
+    esbuild:
+        bundle: true
+        minify: false
+        target: node16
+        packager: yarn
+        sourcemap: true
+        sourcesContent: true
+    serverless-offline:
+        httpPort: 4000
+        lambdaPort: 4001
+    dynamodb:
+        stages:
+            - local
+        start:
+            migrate: true
+            inMemory: true
+            docker: true
+            seed: true
+    serverless-offline-ssm:
+        stages:
+            - local
+        ssm:
+            '/secureapp/local/ApiDomainName': 'localhost'
+            '/secureapp/local/AUDIENCE': 'x'
+            '/secureapp/local/JWKS_URI': 'x'
+            '/secureapp/local/TOKEN_ISSUER': 'x'
+    serverless-offline-sqs:
+        autoCreate: true
+        apiVersion: '2012-11-05'
+        endpoint: http://0.0.0.0:9324
+        region: ap-southeast-2
+        accessKeyId: root
+        secretAccessKey: root
+        skipCacheInvalidation: false
+    layers:
+        - arn:aws:lambda:${self:provider.region}:943013980633:layer:SentryNodeServerlessSDK:26
+    
+provider:
+    name: aws
+    runtime: nodejs16.x
+    region: ap-southeast-2
+    memorySize: 128
+    environment:
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+        ENV: ${self:custom.currentStage}
+        LOG_LEVEL: ${self:custom.logLevel, 'info'}
+        SENTRY_TRACES_SAMPLE_RATE: '1.0'
+        # SENTRY_DSN: 'https://1ec83179352a48769edba49e42338b18@o4504537071681536.ingest.sentry.io/4505028934959104'
+        NODE_OPTIONS: '-r @sentry/serverless/cjs/awslambda-auto'
+        
+resources:
+    - ${file(./sls/api.yaml)}
+    - ${file(./sls/resources/tables/integrity.yaml)}
+
+functions:
+    - ${file(./src/service-authoriser/sls.yaml)}
+    - ${file(./src/service-users/sls.yaml)}
+    - ${file(./src/service-app/sls.yaml)}

@@ -1,0 +1,15 @@
+iosAttestDevice:
+  handler: ./src/service-attest-ios/handlers/attestDevice.tracedHandler
+  layers: ${self:custom.layers}
+  events:
+    - http:
+        method: POST
+        path: /v1/verify/ios/attest
+
+iosRetrieveChallenge:
+  handler: ./src/service-attest-ios/handlers/retrieveAttestationChallenge.tracedHandler
+  layers: ${self:custom.layers}
+  events:
+    - http:
+        method: GET
+        path: /v1/verify/ios/challenge
