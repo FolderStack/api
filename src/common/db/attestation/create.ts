@@ -9,16 +9,17 @@ import {
 } from './type';
 
 export function createAttestationChallenge(
-    device: `Device#${string}`,
+    device: string,
     challenge: string,
     state: string
 ): IAttestationChallenge {
     return {
-        PK: device,
+        PK: `Device#${device}`,
         SK: `Challenge#${challenge}`,
         entityType: 'Challenge',
         state,
         createdAt: Date.now(),
+        expiresAt: Date.now() + 1000 * 60 * 5, // 5 minutes
         updatedAt: null,
         deletedAt: null,
     };

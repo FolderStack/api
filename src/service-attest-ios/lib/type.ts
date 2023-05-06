@@ -1,5 +1,5 @@
 import * as pkijs from 'pkijs';
-import { HasDates, TableProperties } from '../../types';
+import { HasDates, TableProperties } from '../../common/types';
 
 interface BufferObject {
     type: 'Buffer';
@@ -49,7 +49,6 @@ export interface IAttestationChallenge extends TableProperties, HasDates {
     entityType: 'Challenge';
 
     state: string;
-    expiresAt: number | null
 }
 
 export interface IAttestation extends TableProperties, HasDates {

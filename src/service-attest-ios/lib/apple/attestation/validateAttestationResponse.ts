@@ -1,8 +1,8 @@
 import * as crypto from 'crypto';
 import { logger } from '../../../../common';
 import { BundleId, TeamId } from '../../../constants';
+import { AttestationRequest, AttestationResponse } from '../../type';
 import { getAppleRootCA } from '../assets/getAsset';
-import { AttestationRequest, AttestationResponse } from '../types';
 
 // https://developer.apple.com/documentation/devicecheck/assessing_fraud_risk#overview
 export async function validateAttestationResponse(

@@ -1,4 +1,4 @@
-import { AttestationRequest } from '../types';
+import { AttestationRequest } from '../../type';
 import { toArrayBuffer } from './arrayBuffers';
 import { convertBase64ToJSON } from './convertAttestationToJSON';
 

@@ -3,7 +3,7 @@ import { marshall } from '@aws-sdk/util-dynamodb';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
 import { customAlphabet } from 'nanoid';
-import { sendWriteCommand } from '../../common';
+import { createAttestationChallenge, sendWriteCommand } from '../../common';
 import { config } from '../../config';
 const challengeDict = customAlphabet(
     'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
@@ -26,16 +26,15 @@ export function createAndStoreChallenge(
 ): TE.TaskEither<Error, string> {
     const challenge = challengeDict(36);
 
+    const record = createAttestationChallenge(
+        device,
+        challenge,
+        Buffer.from(state).toString('base64')
+    )
+
     const params: PutItemCommandInput = {
         TableName: config.tables.integrityTable,
-        Item: marshall({
-            PK: `Device#${device}`,
-            SK: `Challenge#${challenge}`,
-            entityType: 'Challenge',
-            state: Buffer.from(state).toString('base64'),
-            createdAt: Date.now(),
-            expiresAt: Date.now() + 1000 * 60 * 5, // 5 minutes
-        }),
+        Item: marshall(record),
     };
 
     return pipe(

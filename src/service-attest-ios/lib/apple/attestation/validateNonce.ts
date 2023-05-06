@@ -1,7 +1,7 @@
 import * as x509 from '@peculiar/x509';
 import { createHash } from 'crypto';
 import * as forge from 'node-forge';
-import { AttestationRequest } from '../types';
+import { AttestationRequest } from '../../type';
 import { extractCertificates, getOctetStringValue } from '../utils';
 
 export function validateNonce(request: AttestationRequest, clientData: string) {

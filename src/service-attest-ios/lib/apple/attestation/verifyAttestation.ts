@@ -1,4 +1,5 @@
-import { AttestationRequest, logger } from '../../../../common';
+import { logger } from '../../../../common';
+import { AttestationRequest } from '../../type';
 import { extractCertificates, validateCertificateChain } from '../utils';
 import { sendAttestationDataRequest } from './sendAttestationRequest';
 import { validateNonce } from './validateNonce';
