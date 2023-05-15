@@ -1,10 +1,11 @@
 import { PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
+import { sendWriteCommand } from '@common/utils';
+import { config } from '@config';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
 import { customAlphabet } from 'nanoid';
-import { createAttestationChallenge, sendWriteCommand } from '../../common';
-import { config } from '../../config';
+import { createAttestationChallengeRecord } from './createAttestationChallengeRecord';
 const challengeDict = customAlphabet(
     'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 );
@@ -20,14 +21,14 @@ const challengeDict = customAlphabet(
  * @param accessToken Access token used to authenticate with the API.
  * @returns
  */
-export function createAndStoreChallenge(
+export function saveAttestationChallenge(
     device: string,
     state: string
 ): TE.TaskEither<Error, string> {
     const challenge = challengeDict(36);
 
-    const record = createAttestationChallenge(
-        device,
+    const record = createAttestationChallengeRecord(
+        `Device#${device}`,
         challenge,
         Buffer.from(state).toString('base64')
     )

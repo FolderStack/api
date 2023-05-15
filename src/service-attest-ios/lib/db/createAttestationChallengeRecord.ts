@@ -1,4 +1,4 @@
-import { IAttestationChallenge } from "../type";
+import { IAttestationChallenge } from "@common/types";
 
 export function createAttestationChallengeRecord(
     device: `Device#${string}`,

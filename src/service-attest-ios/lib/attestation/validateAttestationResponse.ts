@@ -1,13 +1,13 @@
+import { AttestationRequest, AttestationResponse, ClientBundleIOS } from '@common/types';
+import { logger } from '@common/utils';
 import * as crypto from 'crypto';
-import { logger } from '../../../../common';
-import { BundleId, TeamId } from '../../../constants';
-import { AttestationRequest, AttestationResponse } from '../../type';
 import { getAppleRootCA } from '../assets/getAsset';
 
 // https://developer.apple.com/documentation/devicecheck/assessing_fraud_risk#overview
 export async function validateAttestationResponse(
     response: AttestationResponse,
-    request: AttestationRequest
+    request: AttestationRequest,
+    client: ClientBundleIOS
 ) {
     try {
         // 1. Verify the signature
@@ -41,7 +41,7 @@ export async function validateAttestationResponse(
         // Skip #3, we have already parsed the structure...
 
         // 4. Verify that the app id matches
-        if (response.values.appId !== `${TeamId}.${BundleId}`) {
+        if (response.values.appId !== `${client.teamId}.${client.bundleId}`) {
             throw new Error('App Ids do not match.');
         }
 

@@ -1,4 +1,4 @@
-import { AttestationRequest } from '../../type';
+import { AttestationRequest } from '@common/types';
 import { toArrayBuffer } from './arrayBuffers';
 import { convertBase64ToJSON } from './convertAttestationToJSON';
 
@@ -33,8 +33,3 @@ export function parseAsn1Structure(
         attestation: attestationObjectJson,
     };
 }
-
-// 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-// 0 0 0 0
-// 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-// 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0

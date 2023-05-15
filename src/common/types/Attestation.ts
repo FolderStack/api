@@ -1,10 +1,7 @@
 import * as pkijs from 'pkijs';
-import { HasDates, TableProperties } from '../../common/types';
-
-interface BufferObject {
-    type: 'Buffer';
-    data: ArrayBuffer;
-}
+import { BufferObject } from './BufferObject';
+import { HasDates } from "./HasDates";
+import { TableProperties } from "./TableProperties";
 
 export interface AttestationObject {
     fmt: string;
@@ -71,6 +68,8 @@ export interface IAttestationReceipt extends TableProperties, HasDates {
     SK: `Receipt#${string}#${string}`;
     entityType: 'AttestationReceipt';
 
+    bundleId: string;
+    
     appId: string;
     riskMetric: number;
     clientHash: Buffer;

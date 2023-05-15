@@ -1,10 +1,13 @@
+import { ClientBundleIOS } from '@common/types';
 import axios from 'axios';
 import { getAppleJWT } from '../utils';
 
 export async function sendAttestationDataRequest(
-    receipt: string
+    receipt: string,
+    client: ClientBundleIOS
 ): Promise<unknown | null> {
-    const jwt = getAppleJWT();
+    const privateKey = ''; // TODO: fetch private key
+    const jwt = getAppleJWT(client.privateKeyId, client.teamId, privateKey);
     const url =
         'https://data-development.appattest.apple.com/v1/attestationData';
 

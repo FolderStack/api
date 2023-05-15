@@ -1,11 +1,13 @@
-import { APIGatewayProxyEvent } from 'aws-lambda';
-import { pipe } from 'fp-ts/lib/function';
-import { Ok, logger, response, withSentryTrace } from '../../common';
 import {
     HttpBadRequestError,
     HttpInternalServerError,
-} from '../../common/errors';
-import { createAndStoreChallenge } from '../lib/createAndStoreChallenge';
+} from '@common/errors';
+import { Ok, response } from '@common/responses';
+import { withSentryTrace } from '@common/sentry';
+import { logger } from '@common/utils';
+import { APIGatewayProxyEvent } from 'aws-lambda';
+import { pipe } from 'fp-ts/lib/function';
+import { saveAttestationChallenge } from '../lib/db';
 
 async function handler(event: APIGatewayProxyEvent) {
     try {
@@ -17,7 +19,7 @@ async function handler(event: APIGatewayProxyEvent) {
         }
 
         return pipe(
-            createAndStoreChallenge(device, state),
+            saveAttestationChallenge(device, state),
             response((challenge) => Ok({ challenge }))
         )();
     } catch (err) {

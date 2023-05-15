@@ -1,6 +1,6 @@
+import { AttestationObject } from '@common/types';
 import { Buffer } from 'buffer';
 import * as cbor from 'cbor';
-import { AttestationObject } from '../../type';
 
 function base64ToArrayBuffer(base64: string) {
     const buffer = Buffer.from(base64, 'base64');

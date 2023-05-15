@@ -1,9 +1,9 @@
 import { QueryCommand, QueryCommandInput } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
+import { secureHash, sendReadCommand } from '@common/utils';
+import { config } from '@config';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/function';
-import { secureHash, sendReadCommand } from '../../common';
-import { config } from '../../config';
 
 interface ChallengeRecord {
     tokenHash: string;

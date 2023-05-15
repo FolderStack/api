@@ -1,5 +1,5 @@
+import { AttestationRequest } from '@common/types';
 import * as Crypto from 'crypto';
-import { AttestationRequest } from '../../type';
 
 export function extractCertificates(
     request: AttestationRequest

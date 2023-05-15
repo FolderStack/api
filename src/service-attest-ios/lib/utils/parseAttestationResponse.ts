@@ -1,6 +1,6 @@
+import { AttestationResponse } from '@common/types';
 import * as asn1 from 'asn1js';
 import * as pkijs from 'pkijs';
-import { AttestationResponse } from '../../type';
 
 export function parseAttestationResponse(
     attestationResponse: string

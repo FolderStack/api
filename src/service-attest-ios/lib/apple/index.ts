@@ -1,1 +1,0 @@
-export { verifyAttestation } from './attestation';

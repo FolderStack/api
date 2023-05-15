@@ -1,4 +1,4 @@
-import { AttestationRequest, IAttestation } from "../type";
+import { AttestationRequest, IAttestation } from "@common/types";
 
 export function createAttestationRecord(
     device: string,

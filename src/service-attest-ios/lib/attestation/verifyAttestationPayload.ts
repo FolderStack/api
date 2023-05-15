@@ -1,17 +1,18 @@
+import { ClientBundleIOS } from '@common/types';
 import { createHash } from 'crypto';
-import { BundleId, TeamId } from '../../../constants';
 import { arrayBufferEquals } from '../utils';
 
 export function verifyAttestationPayload(
     asn1Payload: any,
-    keyId: string,
+    localKeyId: string, // Represents the keyId of the Attestation keypair on the device...
+    client: ClientBundleIOS,
     storedPublicKey?: string
 ): boolean {
     const appIdSignature = Buffer.from(asn1Payload.appIdHash).toString('hex');
     const publicKey = Buffer.from(asn1Payload.publicKey).toString('hex');
 
     const appIdHash = createHash('sha256')
-        .update(`${TeamId}.${BundleId}`)
+        .update(`${client.teamId}.${client.bundleId}`)
         .digest()
         .toString('hex');
 
@@ -46,7 +47,7 @@ export function verifyAttestationPayload(
         return false;
     }
 
-    if (!Buffer.from(keyId, 'base64').equals(asn1Payload.credentialId)) {
+    if (!Buffer.from(localKeyId, 'base64').equals(asn1Payload.credentialId)) {
         console.error(
             'Credential ID in the attestation object does not match the key identifier'
         );

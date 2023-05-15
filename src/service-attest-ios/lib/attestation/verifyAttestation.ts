@@ -1,5 +1,6 @@
-import { logger } from '../../../../common';
-import { AttestationRequest } from '../../type';
+
+import { AttestationRequest, ClientBundleIOS } from '@common/types';
+import { logger } from '@common/utils';
 import { extractCertificates, validateCertificateChain } from '../utils';
 import { sendAttestationDataRequest } from './sendAttestationRequest';
 import { validateNonce } from './validateNonce';
@@ -8,9 +9,10 @@ import { verifyAttestationPayload } from './verifyAttestationPayload';
 export async function verifyAttestation(
     request: AttestationRequest,
     clientChallenge: string,
-    keyId: string
-) {
-    if (!verifyAttestationPayload(request, keyId)) {
+    localKeyId: string, // Represents the keyId of the Attestation keypair on the device...
+    client: ClientBundleIOS
+): Promise<string | undefined> {
+    if (!verifyAttestationPayload(request, localKeyId, client)) {
         logger.debug('Failed to verify payload.');
         return;
     }
@@ -30,8 +32,11 @@ export async function verifyAttestation(
 
     const receipt = Buffer.from(request.receipt);
     const attestationResponse = await sendAttestationDataRequest(
-        receipt.toString('base64')
+        receipt.toString('base64'),
+        client
     );
+
+    if (typeof attestationResponse !== 'string') return;
 
     return attestationResponse;
 }

@@ -1,14 +1,13 @@
 import jwt from 'jsonwebtoken';
-import { PrivateKey, PrivateKeyId, TeamId } from '../../../constants';
 
-export function getAppleJWT(): string {
+export function getAppleJWT(keyId: string, teamId: string, privateKey: string): string {
     const header = {
         alg: 'ES256',
-        kid: PrivateKeyId,
+        kid: keyId,
     };
 
     const payload = {
-        iss: TeamId,
+        iss: teamId,
         iat: Math.floor(Date.now() / 1000),
     };
 
@@ -18,6 +17,6 @@ export function getAppleJWT(): string {
         header,
     };
 
-    const token = jwt.sign(payload, PrivateKey, options);
+    const token = jwt.sign(payload, privateKey, options);
     return token;
 }

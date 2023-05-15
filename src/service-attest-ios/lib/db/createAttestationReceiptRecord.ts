@@ -1,8 +1,9 @@
+import { normaliseDate } from "@common/db";
+import { AttestationResponse, IAttestationReceipt } from "@common/types";
 import { createHash } from "crypto";
-import { normaliseDate } from "../../../common/db/normaliseDate";
-import { AttestationResponse, IAttestationReceipt } from "../type";
 
 export function createAttestationReceiptRecord(
+    bundleId: string,
     device: string,
     receipt: string,
     receiptInfo: AttestationResponse['values']
@@ -15,6 +16,7 @@ export function createAttestationReceiptRecord(
         SK: `Receipt#${receiptHash}#${normaliseDate(now)}`,
         entityType: 'AttestationReceipt',
 
+        bundleId,
         receiptType: receiptInfo.receiptType,
         appId: receiptInfo.appId,
         publicKey: receiptInfo.publicKey,
