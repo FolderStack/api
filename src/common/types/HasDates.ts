@@ -1,5 +1,5 @@
 export interface HasDates {
     createdAt: number;
-    updatedAt: number | null;
+    updatedAt: number;
     deletedAt: number | null;
 }

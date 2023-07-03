@@ -1,0 +1,10 @@
+createThumbnail:
+    handler: ./src/service-thumbnails/handlers/createThumbnail.handler
+    events:
+      - s3: 
+          bucket: ${self:custom.environment.assetBucket.${self:custom.currentStage}}
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploads/
+    layers:
+      - arn:aws:lambda:ap-southeast-2:895952315185:layer:image-magick:1	

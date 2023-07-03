@@ -1,0 +1,34 @@
+getFolderContents:
+  handler: ./src/service-assets/handlers/getFolderContents.handler
+  events:
+    - http:
+        method: GET
+        path: /folders/{folderId}
+
+createFile:
+  handler: ./src/service-assets/handlers/createFile.handler
+  events:
+    - http:
+        method: POST
+        path: /folders/{folderId}/files
+
+deleteFile:
+  handler: ./src/service-assets/handlers/deleteFile.handler
+  events:
+    - http:
+        method: DELETE
+        path: /folders/{folderId}/files/{fileId}
+
+createFolder:
+  handler: ./src/service-assets/handlers/createFolder.handler
+  events:
+    - http:
+        method: POST
+        path: /folders
+
+createPresignedUrls:
+  handler: ./src/service-assets/handlers/createUploadUrls.handler
+  events:
+    - http:
+        method: POST
+        path: /uploads

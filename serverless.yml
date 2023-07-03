@@ -1,15 +1,14 @@
-service: secureapp
+service: damdam
 
 frameworkVersion: '3'
+useDotenv: true
 
 package:
     individually: false
     excludeDevDependencies: true
-    include: 
-        - src/**/*.cer
-        - src/**/*.pem
 
 plugins:
+    - serverless-domain-manager
     - serverless-prune-plugin
     - serverless-esbuild
     - serverless-offline-sqs
@@ -29,6 +28,16 @@ custom:
         staging: warn
         local: debug
     logLevel: ${self:custom.logLevels.${self:custom.currentStage}, 'info'}
+    domains:
+        production: "api.peakdam.com"
+        staging: "staging-api.peakdam.com"
+        local: "localhost"
+    customDomain:
+        domainName: ${self:custom.domains.${self:custom.currentStage}}
+        basePath: "api/v1"
+        stage: ${self:custom.currentStage}
+        certificateName: "*.peakdam.io"
+        createRoute53Record: true
     esbuild:
         bundle: true
         minify: false
@@ -65,25 +74,55 @@ custom:
         skipCacheInvalidation: false
     layers:
         - arn:aws:lambda:${self:provider.region}:943013980633:layer:SentryNodeServerlessSDK:26
-    
+    environment:
+        aws:
+            keyId:
+                local: ${env:AWS_ACCESS_KEY_ID}
+            accessKey:
+                local: ${env:AWS_SECRET_ACCESS_KEY}
+        assetTable:
+            production: 'damdam-assets-production'
+            staging: 'damdam-assets-staging'
+            local: 'damdam-assets-staging'
+        assetBucket:
+            production: 'damdam-assets-production'
+            staging: 'damdam-assets-staging'
+            local: 'damdam-assets-staging'
+
 provider:
     name: aws
     runtime: nodejs16.x
     region: ap-southeast-2
     memorySize: 128
     environment:
+        ASSET_TABLE_READ_CAPACITY: 5
+        ASSET_TABLE_WRITE_CAPACITY: 5
+        ASSET_TABLE_GSI_READ_CAPACITY: 5
+        ASSET_TABLE_GSI_WRITE_CAPACITY: 5
+        ASSET_TABLE_NAME: ${self:custom.environment.assetTable.${self:custom.currentStage}}
+        ASSET_BUCKET_NAME: ${self:custom.environment.assetBucket.${self:custom.currentStage}}
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
         ENV: ${self:custom.currentStage}
         LOG_LEVEL: ${self:custom.logLevel, 'info'}
         SENTRY_TRACES_SAMPLE_RATE: '1.0'
         # SENTRY_DSN: 'https://1ec83179352a48769edba49e42338b18@o4504537071681536.ingest.sentry.io/4505028934959104'
         NODE_OPTIONS: '-r @sentry/serverless/cjs/awslambda-auto'
+        ACCESS_KEY_ID: ${self:custom.environment.aws.keyId.${self:custom.currentStage}, ''}
+        SECRET_ACCESS_KEY: ${self:custom.environment.aws.accessKey.${self:custom.currentStage}, ''}
+    iamRoleStatements:
+        - Effect: "Allow"
+          Action:
+            - "s3:GetObject"
+            - "s3:PutObject"
+          Resource: "arn:aws:s3:::${self:custom.environment.assetBucket.${self:custom.currentStage}}/*"
+
         
 resources:
-    - ${file(./sls/api.yaml)}
-    - ${file(./sls/resources/tables/integrity.yaml)}
+    - ${file(./sls/resources/tables/assets.yaml)}
 
 functions:
     - ${file(./src/service-authoriser/sls.yaml)}
-    - ${file(./src/service-users/sls.yaml)}
-    - ${file(./src/service-app/sls.yaml)}
+    # - ${file(./src/service-org/sls.yaml)}
+    # - ${file(./src/service-users/sls.yaml)}
+    - ${file(./src/service-assets/sls.yaml)}
+    - ${file(./src/service-thumbnails/sls.yaml)}

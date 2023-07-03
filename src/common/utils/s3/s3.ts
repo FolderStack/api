@@ -1,5 +1,5 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { config } from '../../../config';
+import { S3Client } from '@aws-sdk/client-s3';
+import { config } from '@config';
 
 const credentials = config.isLocal
     ? {
@@ -8,8 +8,7 @@ const credentials = config.isLocal
       }
     : undefined;
 
-export const dynamoDb = new DynamoDBClient({
+export const s3 = new S3Client({
     region: process.env.REGION,
-    // endpoint: config.isLocal ? 'http://localhost:8000' : undefined
     credentials,
 });
