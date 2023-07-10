@@ -3,17 +3,16 @@ import {
     HttpError,
     HttpInternalServerError,
 } from '@common/errors';
-import { Created, response } from '@common/responses';
+import { NoContent, response } from '@common/responses';
 import { getOrgId, logger, parseBody } from '@common/utils';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
-import { createFolder } from '../lib/db';
+import { updateTreeOrder } from '../lib/updateTreeOrder';
 
 export async function handler(event: APIGatewayProxyEvent) {
     try {
         const org = getOrgId(event);
-        logger.debug('Org: ' + org);
 
         const parsedBody = pipe(
             event.body,
@@ -23,14 +22,11 @@ export async function handler(event: APIGatewayProxyEvent) {
             })
         );
 
-        const { name, image = null, parent = null } = parsedBody;
+        const { items } = parsedBody;
 
-        return pipe(
-            createFolder(name, image, parent, org),
-            response(Created)
-        )();
+        return pipe(updateTreeOrder(items, org), response(NoContent))();
     } catch (err: any) {
-        console.log(err);
+        logger.warn({ err });
         if (err instanceof HttpError) {
             return err.toResponse();
         }

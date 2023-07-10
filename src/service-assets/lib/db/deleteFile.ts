@@ -38,14 +38,12 @@ export function deleteFile(
         TE.fromTask(async () => {
             const command = new GetItemCommand(getParams);
             const result = await dynamoDb.send(command);
-            console.log({ result });
             return result;
         }),
         TE.chain((result) => {
             const item = unmarshall(result.Item ?? {});
-            console.log({ item });
-            if (item.org !== org)
-                return TE.throwError(new HttpForbiddenError());
+
+            if (item.org !== org) return TE.left(new HttpForbiddenError());
 
             const file = fromFileRecordToJson(item as IFileRecord);
             const fileSize = file.fileSize ?? 0;
@@ -53,7 +51,7 @@ export function deleteFile(
             return pipe(
                 new DeleteItemCommand(deleteParams),
                 sendWriteCommand,
-                TE.chain(() => updateFolderFileSize(folder, -fileSize, org))
+                () => updateFolderFileSize(folder, -fileSize, org)
             );
         })
     );

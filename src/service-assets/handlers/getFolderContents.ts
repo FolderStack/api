@@ -1,9 +1,6 @@
-import { ScanCommand } from '@aws-sdk/client-dynamodb';
-import { unmarshall } from '@aws-sdk/util-dynamodb';
 import { HttpBadRequestError } from '@common/errors';
 import { Ok, response } from '@common/responses';
-import { dynamoDb, getOrgId } from '@common/utils';
-import { config } from '@config';
+import { getOrgId } from '@common/utils';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { pipe } from 'fp-ts/lib/function';
 import _ from 'lodash';
@@ -28,12 +25,6 @@ export async function handler(event: APIGatewayProxyEvent) {
 
     const pageSize = Number(_.get(params, 'pageSize', 20));
     const cursor = _.get(params, 'cursor');
-
-    const cmd = new ScanCommand({
-        TableName: config.tables.assetTable,
-    });
-    const result = await dynamoDb.send(cmd);
-    console.log(result.Items?.map((item) => unmarshall(item)));
 
     return pipe(
         getContentsOfFolder({

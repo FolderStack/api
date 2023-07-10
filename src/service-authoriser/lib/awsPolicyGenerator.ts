@@ -33,8 +33,9 @@ export class AWSPolicyGenerator {
             context !== undefined &&
             typeof context === 'object'
         ) {
-            authResponse.context =
-                context as APIGatewayAuthorizerResult['context'];
+            const ctx: Record<string, unknown> = (context as any) ?? {};
+            ctx.org = '';
+            authResponse.context = ctx as any;
         }
 
         return authResponse;

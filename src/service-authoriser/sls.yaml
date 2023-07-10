@@ -3,7 +3,6 @@ authoriser:
   timeout: 30
   memorySize: 512
   environment:
-      AUDIENCE: ${ssm:/secureapp/${self:custom.currentStage}/AUDIENCE, null}
-      JWKS_URI: ${ssm:/secureapp/${self:custom.currentStage}/JWKS_URI, null}
-      TOKEN_ISSUER: ${ssm:/secureapp/${self:custom.currentStage}/TOKEN_ISSUER, null}
-
+      AUDIENCE: ${ssm:/damdam/${self:custom.currentStage}/AUDIENCE, null}
+      JWKS_URI: ${ssm:/damdam/${self:custom.currentStage}/JWKS_URI, null}
+      TOKEN_ISSUER: ${ssm:/damdam/${self:custom.currentStage}/TOKEN_ISSUER, null}

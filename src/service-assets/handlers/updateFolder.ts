@@ -3,17 +3,22 @@ import {
     HttpError,
     HttpInternalServerError,
 } from '@common/errors';
-import { Created, response } from '@common/responses';
+import { NoContent, response } from '@common/responses';
 import { getOrgId, logger, parseBody } from '@common/utils';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
-import { createFolder } from '../lib/db';
+import _ from 'lodash';
+import { updateFolder } from '../lib/db/updateFolder';
 
 export async function handler(event: APIGatewayProxyEvent) {
     try {
         const org = getOrgId(event);
-        logger.debug('Org: ' + org);
+
+        const folderId = _.get(event.pathParameters, 'folderId', null);
+        if (!folderId || _.isEmpty(folderId)) {
+            return new HttpBadRequestError().toResponse();
+        }
 
         const parsedBody = pipe(
             event.body,
@@ -23,14 +28,12 @@ export async function handler(event: APIGatewayProxyEvent) {
             })
         );
 
-        const { name, image = null, parent = null } = parsedBody;
-
         return pipe(
-            createFolder(name, image, parent, org),
-            response(Created)
+            updateFolder(folderId, parsedBody, org),
+            response(NoContent)
         )();
     } catch (err: any) {
-        console.log(err);
+        logger.warn({ err });
         if (err instanceof HttpError) {
             return err.toResponse();
         }

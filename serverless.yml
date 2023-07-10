@@ -36,7 +36,7 @@ custom:
         domainName: ${self:custom.domains.${self:custom.currentStage}}
         basePath: "api/v1"
         stage: ${self:custom.currentStage}
-        certificateName: "*.peakdam.io"
+        certificateName: "*.peakdam.com"
         createRoute53Record: true
     esbuild:
         bundle: true
@@ -60,10 +60,10 @@ custom:
         stages:
             - local
         ssm:
-            '/secureapp/local/ApiDomainName': 'localhost'
-            '/secureapp/local/AUDIENCE': 'x'
-            '/secureapp/local/JWKS_URI': 'x'
-            '/secureapp/local/TOKEN_ISSUER': 'x'
+            '/damdam/local/ApiDomainName': 'localhost'
+            '/damdam/local/AUDIENCE': 'x'
+            '/damdam/local/JWKS_URI': 'x'
+            '/damdam/local/TOKEN_ISSUER': 'x'
     serverless-offline-sqs:
         autoCreate: true
         apiVersion: '2012-11-05'
@@ -109,6 +109,9 @@ provider:
         NODE_OPTIONS: '-r @sentry/serverless/cjs/awslambda-auto'
         ACCESS_KEY_ID: ${self:custom.environment.aws.keyId.${self:custom.currentStage}, ''}
         SECRET_ACCESS_KEY: ${self:custom.environment.aws.accessKey.${self:custom.currentStage}, ''}
+        AUTH0_CLIENT_ID: 'Ub83VcmwDHMRdELQppbrEYkXBlCPShjN'
+        AUTH_CLIENT_SECRET: 'H1ENukg7spuIbt1Igce8cxwtRJiUd9P16ly2EaU3ihSDoAAuWnXKQe1OVuK9M9bS'
+        AUTH0_DOMAIN: 'https://peakdam.au.auth0.com'
     iamRoleStatements:
         - Effect: "Allow"
           Action:
@@ -116,7 +119,6 @@ provider:
             - "s3:PutObject"
           Resource: "arn:aws:s3:::${self:custom.environment.assetBucket.${self:custom.currentStage}}/*"
 
-        
 resources:
     - ${file(./sls/resources/tables/assets.yaml)}
 

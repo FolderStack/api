@@ -39,7 +39,7 @@ export function createFile(
     return pipe(
         new PutItemCommand(params),
         sendWriteCommand,
-        TE.chain(() => updateFolderFileSize(folder, fileSize, org)),
+        () => updateFolderFileSize(folder, fileSize, org),
         TE.map(() => fromFileRecordToJson(record))
     );
 }

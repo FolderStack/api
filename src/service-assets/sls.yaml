@@ -1,9 +1,28 @@
+# Public
+getFolderTree:
+  handler: ./src/service-assets/handlers/getFolderTree.handler
+  events:
+    - http:
+        method: GET
+        path: /tree
+        cors: true
+
 getFolderContents:
   handler: ./src/service-assets/handlers/getFolderContents.handler
   events:
     - http:
         method: GET
         path: /folders/{folderId}
+        cors: true
+
+# Admin Only
+updateTreeOrder:
+  handler: ./src/service-assets/handlers/updateTreeOrder.handler
+  events:
+    - http:
+        method: PATCH
+        path: /tree
+        cors: true
 
 createFile:
   handler: ./src/service-assets/handlers/createFile.handler
@@ -11,6 +30,7 @@ createFile:
     - http:
         method: POST
         path: /folders/{folderId}/files
+        cors: true
 
 deleteFile:
   handler: ./src/service-assets/handlers/deleteFile.handler
@@ -18,6 +38,7 @@ deleteFile:
     - http:
         method: DELETE
         path: /folders/{folderId}/files/{fileId}
+        cors: true
 
 createFolder:
   handler: ./src/service-assets/handlers/createFolder.handler
@@ -25,6 +46,23 @@ createFolder:
     - http:
         method: POST
         path: /folders
+        cors: true
+
+updateFolder:
+  handler: ./src/service-assets/handlers/updateFolder.handler
+  events:
+    - http:
+        method: PATCH
+        path: /folders/{folderId}
+        cors: true
+
+deleteFolder:
+  handler: ./src/service-assets/handlers/deleteFolder.handler
+  events:
+    - http:
+        method: DELETE
+        path: /folders/{folderId}
+        cors: true
 
 createPresignedUrls:
   handler: ./src/service-assets/handlers/createUploadUrls.handler
@@ -32,3 +70,4 @@ createPresignedUrls:
     - http:
         method: POST
         path: /uploads
+        cors: true

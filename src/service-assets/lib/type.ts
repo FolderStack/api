@@ -6,28 +6,43 @@ export interface IFolder {
     image: string | null;
     parent: string | null;
     fileSize: number;
+    itemCount: number;
     createdAt: Date;
     updatedAt: Date;
+    type: 'folder';
+    order?: number;
 }
 
 export interface IFolderRecord extends TableProperties, HasDates {
-    PK: `Folder#${string}`;
-    SK: `Parent#${string}` | `Parent#ROOT`;
+    PK: `Folder#${string}` | `Folder#ROOT`;
+    SK: `Folder#${string}`;
     entityType: 'Folder';
     image: string | null;
     fileSize: number;
+    itemCount: number;
     name: string;
     org: string; // Organisation that owns the resource.
+
+    order?: number;
+}
+
+export interface IFolderParentRecord extends TableProperties, HasDates {
+    PK: `Folder#${string}`;
+    SK: `Folder#${string}` | `Folder#ROOT`;
+    entityType: 'FolderParent';
+    org: string;
 }
 
 export interface IFile {
     id: string;
+    parent: string;
     name: string;
     asset: string;
     fileSize: number;
     fileType: string;
     createdAt: Date;
     updatedAt: Date;
+    type: 'file';
 }
 
 export interface IFileRecord extends TableProperties, HasDates {

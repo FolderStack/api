@@ -1,6 +1,7 @@
 import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { QueryCommandInput } from '@aws-sdk/lib-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
+import { HttpNotFoundError } from '@common/errors';
 import { logger, sendReadCommand } from '@common/utils';
 import { config } from '@config';
 import * as TE from 'fp-ts/TaskEither';
@@ -9,6 +10,7 @@ import _ from 'lodash';
 import { fromFileRecordToJson } from '../fromFileRecordToJson';
 import { fromFolderRecordToJson } from '../fromFolderRecordToJson';
 import { IFile, IFileRecord, IFolder, IFolderRecord } from '../type';
+import { getFolder } from './getFolder';
 
 interface Parameters {
     folderId: string;
@@ -28,14 +30,26 @@ interface Parameters {
     };
 }
 
+interface Result {
+    data: {
+        current: IFolder | null;
+        items: (IFile | IFolder)[];
+    };
+    pagination: {
+        totalItems: number;
+        found: number;
+        pageSize: number;
+        nextCursor?: string;
+    };
+}
+
 export function getContentsOfFolder(
     params: Parameters
-): TE.TaskEither<Error, (IFolder | IFile)[]> {
+): TE.TaskEither<Error, Result> {
     logger.debug('Begin: getContentsOfFolder');
-    console.log(JSON.stringify(params, null, 4));
 
     let attributeValues: any = {
-        ':folderId': `Folder#${params.folderId}`,
+        ':parentId': `Folder#${params.folderId}`,
     };
     let filterExpressions: string[] = [];
 
@@ -61,37 +75,67 @@ export function getContentsOfFolder(
         );
     }
 
-    // filterExpressions.push('begins_with(PK, :folderId)');
-
     const query: QueryCommandInput = {
         TableName: config.tables.assetTable,
-        // IndexName: `${params.sort.by}Index`,
-        KeyConditionExpression: 'PK = :folderId',
+        IndexName: `${params.sort.by}Index`,
+        KeyConditionExpression: `PK = :parentId`,
         ExpressionAttributeValues: marshall(attributeValues),
         FilterExpression: filterExpressions.length
             ? filterExpressions.join(' and ')
             : undefined,
         Limit: params.pagination.pageSize,
         ExclusiveStartKey: params.pagination.cursor
-            ? marshall({ PK: `Folder#${params.pagination.cursor}` })
+            ? marshall({ SK: `Folder#${params.pagination.cursor}` })
             : undefined,
         ScanIndexForward: params.sort.order === 'asc',
     };
 
     return pipe(
-        new QueryCommand(query),
-        sendReadCommand<IFolderRecord | IFileRecord>,
-        TE.map((results) => {
-            logger.debug(`Found contents: ${results.length}`);
-            return results
-                .map((r) => {
-                    if (r.org !== params.orgId) return null;
-                    if (r.entityType === 'File') return fromFileRecordToJson(r);
-                    if (r.entityType === 'Folder')
-                        return fromFolderRecordToJson(r);
-                    return null;
+        getFolder(params.folderId, params.orgId),
+        TE.chain((folder) => {
+            if (!folder) {
+                return TE.left(new HttpNotFoundError());
+            }
+            return TE.right(folder);
+        }),
+        TE.chain((folder) => {
+            return pipe(
+                new QueryCommand(query),
+                sendReadCommand<IFolderRecord | IFileRecord>,
+                TE.map((results) => {
+                    return results
+                        .map((r) => {
+                            if (r.org !== params.orgId) return null;
+                            if (r.entityType === 'File')
+                                return fromFileRecordToJson(r);
+                            if (r.entityType === 'Folder')
+                                return fromFolderRecordToJson(r);
+                            return null;
+                        })
+                        .filter((a) => a !== null) as (IFile | IFolder)[];
+                }),
+                TE.map((result) => {
+                    return {
+                        current: folder,
+                        items: result,
+                    };
                 })
-                .filter((a) => a !== null) as (IFile | IFolder)[];
+            );
+        }),
+        TE.map((data) => {
+            const { current, items } = data;
+            return {
+                data,
+                pagination: {
+                    totalItems: current?.itemCount ?? -1,
+                    found: items.length,
+                    pageSize: params.pagination.pageSize,
+                    nextCursor:
+                        items.length < params.pagination.pageSize
+                            ? undefined
+                            : items[items.length - 1].id,
+                },
+            };
         })
     );
 }

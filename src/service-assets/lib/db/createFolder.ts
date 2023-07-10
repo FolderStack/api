@@ -15,16 +15,29 @@ export function createFolder(
 ): TE.TaskEither<Error, IFolder> {
     const id = randomUUID();
     const record: IFolderRecord = {
-        PK: `Folder#${id}`,
-        SK: `Parent#${parent ?? 'ROOT'}`,
+        PK: `Folder#${parent ?? 'ROOT'}`,
+        SK: `Folder#${id}`,
         entityType: 'Folder',
         name,
         image,
         fileSize: 0,
+        itemCount: 0,
         org,
         createdAt: new Date().getTime(),
         updatedAt: new Date().getTime(),
         deletedAt: null,
+    };
+
+    const parentRecord = {
+        PK: `Folder#${id}`,
+        SK: `Parent#${parent ?? 'ROOT'}`,
+        entityType: 'FolderParent',
+        org,
+    };
+
+    const parentParams = {
+        TableName: config.tables.assetTable,
+        Item: cleanAndMarshall(parentRecord),
     };
 
     logger.debug('createFolder Record:', record);
@@ -37,8 +50,18 @@ export function createFolder(
     logger.debug('createFolder params:', params);
 
     return pipe(
-        new PutItemCommand(params),
+        new PutItemCommand(parentParams),
         sendWriteCommand,
+        TE.chain(() => {
+            return pipe(new PutItemCommand(params), sendWriteCommand);
+        }),
+        // TE.chain(() => {
+        //     if (parent && parent !== 'ROOT') {
+        //         // return pipe(updateFolderFileSize(parent, 0, org));
+        //     } else {
+        //         return TE.right(null);
+        //     }
+        // }),
         TE.map(() => fromFolderRecordToJson(record))
     );
 }
