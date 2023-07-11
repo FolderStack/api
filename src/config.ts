@@ -4,6 +4,7 @@ export const config = {
     queues: {},
     tables: {
         assetTable: process.env.ASSET_TABLE_NAME!,
+        treeTable: process.env.TREE_TABLE_NAME!,
     },
     constants: {
         aws: {

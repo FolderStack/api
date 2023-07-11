@@ -4,7 +4,7 @@ import {
     HttpInternalServerError,
 } from '@common/errors';
 import { Created, response } from '@common/responses';
-import { getOrgId, logger, parseBody } from '@common/utils';
+import { getOrgId, parseBody } from '@common/utils';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
@@ -13,7 +13,7 @@ import { createFolder } from '../lib/db';
 export async function handler(event: APIGatewayProxyEvent) {
     try {
         const org = getOrgId(event);
-        logger.debug('Org: ' + org);
+        //logger.debug('Org: ' + org);
 
         const parsedBody = pipe(
             event.body,
@@ -30,7 +30,7 @@ export async function handler(event: APIGatewayProxyEvent) {
             response(Created)
         )();
     } catch (err: any) {
-        console.log(err);
+        // console.log(err);
         if (err instanceof HttpError) {
             return err.toResponse();
         }

@@ -1,11 +1,13 @@
-import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { s3 } from "@common/utils";
-import { S3Event } from "aws-lambda";
+import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { s3 } from '@common/utils';
+import { S3Event } from 'aws-lambda';
 import { execSync } from 'child_process';
 
 export async function handler(event: S3Event) {
     const bucket = event.Records[0].s3.bucket.name;
-    const key = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, ' '));
+    const key = decodeURIComponent(
+        event.Records[0].s3.object.key.replace(/\+/g, ' ')
+    );
 
     // Skip processing if the file is already a thumbnail
     if (key.includes('_thumbnail.')) {
@@ -24,16 +26,18 @@ export async function handler(event: S3Event) {
         const s3Object = await s3.send(getObject);
         inputData = s3Object.Body;
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         return;
     }
 
     // Add error handling for unsupported file types
     try {
-        execSync(`/opt/bin/magick convert -resize 250x250 ${inputData} ${inputData}`);
+        execSync(
+            `/opt/bin/magick convert -resize 250x250 ${inputData} ${inputData}`
+        );
     } catch (error) {
-        console.log(`Error processing file: ${key}`);
-        console.log(error);
+        // console.log(`Error processing file: ${key}`);
+        // console.log(error);
         return;
     }
 
@@ -43,9 +47,9 @@ export async function handler(event: S3Event) {
         Bucket: bucket,
         Key: targetKey,
         Body: inputData,
-        ContentType: "image/jpeg"
+        ContentType: 'image/jpeg',
     };
 
     const putObject = new PutObjectCommand(putParams);
     await s3.send(putObject);
-};
+}

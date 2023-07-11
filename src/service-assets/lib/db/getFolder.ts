@@ -32,7 +32,6 @@ export function getFolder(
         new QueryCommand(findParentParams),
         sendReadCommand<IFolderParentRecord>,
         TE.chain(([res]) => {
-            console.log({ res }, findParentParams);
             if (!res) {
                 return TE.left(new HttpNotFoundError());
             }
@@ -68,4 +67,49 @@ export function getFolder(
             return fromFolderRecordToJson(result);
         })
     );
+}
+
+export async function getFolderAsync(folderId: string, org: string) {
+    const findParentParams: QueryCommandInput = {
+        TableName: config.tables.assetTable,
+        KeyConditionExpression: `PK = :folderId`,
+        FilterExpression: `entityType = :entityType AND org = :orgId`,
+        ExpressionAttributeValues: marshall({
+            ':folderId': `Folder#${folderId}`,
+            ':orgId': org,
+            ':entityType': 'FolderParent',
+        }),
+    };
+
+    const findParentCommand = new QueryCommand(findParentParams);
+    const parentRaw = await dynamoDb.send(findParentCommand);
+
+    const parent = parentRaw.Items?.map((item) => unmarshall(item))[0];
+
+    if (!parent) {
+        throw new HttpNotFoundError();
+    }
+
+    const getParams: GetItemCommandInput = {
+        TableName: config.tables.assetTable,
+        Key: marshall({
+            PK: parent.SK.replace('Parent', 'Folder'),
+            SK: parent.PK,
+        }),
+    };
+
+    const command = new GetItemCommand(getParams);
+    const result = await dynamoDb.send(command);
+
+    const item = unmarshall(result.Item ?? {});
+
+    if (!item || Object.keys(item ?? {}).length === 0) {
+        throw new HttpNotFoundError();
+    }
+
+    if (item.org !== org) {
+        throw new HttpForbiddenError();
+    }
+
+    return fromFolderRecordToJson(item as any);
 }

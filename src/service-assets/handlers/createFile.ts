@@ -4,7 +4,7 @@ import {
     HttpInternalServerError,
 } from '@common/errors';
 import { Created, response } from '@common/responses';
-import { getOrgId, logger, parseBody } from '@common/utils';
+import { getOrgId, parseBody } from '@common/utils';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
@@ -35,7 +35,7 @@ export async function handler(event: APIGatewayProxyEvent) {
             response(Created)
         )();
     } catch (err: any) {
-        logger.warn({ err });
+        //logger.warn({ err });
         if (err instanceof HttpError) {
             return err.toResponse();
         }

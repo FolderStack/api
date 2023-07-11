@@ -18,7 +18,7 @@ export function sendBatchWriteCommand(
         TE.tryCatch(
             async () => {
                 const result = await dynamoDb.send(batch as any);
-                console.log(result);
+                // console.log(result);
             },
             (error) =>
                 error instanceof Error ? error : new HttpInternalServerError()

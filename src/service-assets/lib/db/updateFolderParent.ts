@@ -1,41 +1,119 @@
-import { sendBatchWriteCommand } from '@common/utils';
+import {
+    TransactWriteCommand,
+    TransactWriteCommandOutput,
+} from '@aws-sdk/lib-dynamodb';
+import { dynamoDb, sendBatchWriteCommand } from '@common/utils';
 import { config } from '@config';
-import { DynamoDB } from 'aws-sdk';
 import * as TE from 'fp-ts/TaskEither';
-import { pipe } from 'fp-ts/lib/function';
-import { IFolderRecord } from '../type';
+import { fromJsonToFolderRecord } from '../fromFolderRecordToJson';
+import { IFolder } from '../type';
+import { UpdateTransactionItem } from './updateFolder';
 
-export function updateFolderParent(
+function getParams(
     folderId: string,
     newParentId: string,
     oldParentId: string,
-    folder: IFolderRecord
-): TE.TaskEither<Error, void> {
-    const oldPK = `Folder#${oldParentId}`; // or however you determine the old parent ID
-    const newPK = `Folder#${newParentId}`;
-    const SK = `Folder#${folderId}`;
+    folder: IFolder,
+    org: string
+) {
+    const _folder = fromJsonToFolderRecord(folder);
+    _folder.org = org;
 
-    const params: DynamoDB.DocumentClient.TransactWriteItemsInput = {
+    console.log(folder, _folder);
+
+    return {
         TransactItems: [
             {
                 Delete: {
                     TableName: config.tables.assetTable, // or whatever your table's name is
-                    Key: { PK: oldPK, SK },
+                    Key: {
+                        PK: `Folder#${folderId}`,
+                        SK: `Parent#${oldParentId}`,
+                    },
+                },
+            },
+            {
+                Delete: {
+                    TableName: config.tables.assetTable, // or whatever your table's name is
+                    Key: {
+                        PK: `Folder#${oldParentId}`,
+                        SK: `Folder#${folderId}`,
+                    },
                 },
             },
             {
                 Put: {
                     TableName: config.tables.assetTable,
                     Item: {
-                        ...folder,
-                        PK: newPK,
-                        SK,
+                        ..._folder,
+                        PK: `Folder#${newParentId}`,
+                        SK: `Folder#${folderId}`,
+                    },
+                },
+            },
+            {
+                Put: {
+                    TableName: config.tables.assetTable,
+                    Item: {
+                        PK: `Folder#${folderId}`,
+                        SK: `Parent#${newParentId}`,
+                        entityType: 'FolderParent',
+                        org,
                     },
                 },
             },
         ],
     };
+}
+
+export function updateFolderParent(
+    folderId: string,
+    newParentId: string,
+    oldParentId: string,
+    folder: IFolder,
+    org: string,
+    transact = true
+) {
+    const params = getParams(folderId, newParentId, oldParentId, folder, org);
 
     // then return a TaskEither that wraps the DynamoDB transactWrite call
-    return pipe(params.TransactItems, sendBatchWriteCommand);
+    if (transact) {
+        return TE.right(params.TransactItems as UpdateTransactionItem[]);
+    } else {
+        return sendBatchWriteCommand(params.TransactItems as any);
+    }
+}
+export function updateFolderParentAsync(
+    folderId: string,
+    newParentId: string,
+    oldParentId: string,
+    folder: IFolder,
+    org: string,
+    transact: true
+): ReturnType<typeof getParams>;
+export function updateFolderParentAsync(
+    folderId: string,
+    newParentId: string,
+    oldParentId: string,
+    folder: IFolder,
+    org: string,
+    transact?: false
+): Promise<TransactWriteCommandOutput>;
+export function updateFolderParentAsync(
+    folderId: string,
+    newParentId: string,
+    oldParentId: string,
+    folder: IFolder,
+    org: string,
+    transact = true
+) {
+    if (newParentId === oldParentId) return [];
+
+    const params = getParams(folderId, newParentId, oldParentId, folder, org);
+
+    if (transact) return params;
+
+    const transaction = new TransactWriteCommand(params);
+
+    return dynamoDb.send(transaction as any);
 }

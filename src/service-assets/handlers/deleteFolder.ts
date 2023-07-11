@@ -4,7 +4,7 @@ import {
     HttpInternalServerError,
 } from '@common/errors';
 import { NoContent, response } from '@common/responses';
-import { getOrgId, logger } from '@common/utils';
+import { getOrgId } from '@common/utils';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { pipe } from 'fp-ts/function';
 import _ from 'lodash';
@@ -21,7 +21,7 @@ export async function handler(event: APIGatewayProxyEvent) {
 
         return pipe(deleteFolder(folderId, org), response(NoContent))();
     } catch (err: any) {
-        logger.warn({ err });
+        //logger.warn({ err });
         if (err instanceof HttpError) {
             return err.toResponse();
         }

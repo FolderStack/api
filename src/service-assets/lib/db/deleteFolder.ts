@@ -26,7 +26,6 @@ export function deleteFolder(
         //     );
         // }),
         TE.chain((result) => {
-            console.log({ result });
             const parent = result.parent;
             const fileSize = result.fileSize ?? 0;
 

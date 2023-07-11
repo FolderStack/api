@@ -2,7 +2,7 @@ import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { QueryCommandInput } from '@aws-sdk/lib-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { HttpNotFoundError } from '@common/errors';
-import { logger, sendReadCommand } from '@common/utils';
+import { sendReadCommand } from '@common/utils';
 import { config } from '@config';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/function';
@@ -46,7 +46,7 @@ interface Result {
 export function getContentsOfFolder(
     params: Parameters
 ): TE.TaskEither<Error, Result> {
-    logger.debug('Begin: getContentsOfFolder');
+    //logger.debug('Begin: getContentsOfFolder');
 
     let attributeValues: any = {
         ':parentId': `Folder#${params.folderId}`,

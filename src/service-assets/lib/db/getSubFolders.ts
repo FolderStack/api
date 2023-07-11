@@ -1,7 +1,7 @@
 import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { QueryCommandInput } from '@aws-sdk/lib-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
-import { sendReadCommand } from '@common/utils';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { dynamoDb, sendReadCommand } from '@common/utils';
 import { config } from '@config';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
@@ -12,11 +12,11 @@ export function getSubFolders(parentId: string, orgId: string) {
     const queryParams: QueryCommandInput = {
         TableName: config.tables.assetTable,
         KeyConditionExpression: `PK = :pk`,
-        FilterExpression: `entityType = :entityType AND deletedAt = :deletedAt AND org = :org`,
+        FilterExpression: `entityType = :entityType AND org = :org`,
         ExpressionAttributeValues: marshall({
             ':pk': `Folder#${parentId}`,
             ':entityType': 'Folder',
-            ':deletedAt': null,
+            // ':deletedAt': null,
             ':org': orgId,
         }),
     };
@@ -30,5 +30,28 @@ export function getSubFolders(parentId: string, orgId: string) {
                 .filter((a) => !!a)
                 .map((r) => fromFolderRecordToJson(r));
         })
+    );
+}
+
+export async function getSubFoldersAsync(parentId: string, orgId: string) {
+    const queryParams: QueryCommandInput = {
+        TableName: config.tables.assetTable,
+        KeyConditionExpression: `PK = :pk`,
+        FilterExpression: `entityType = :entityType AND org = :org`,
+        ExpressionAttributeValues: marshall({
+            ':pk': `Folder#${parentId}`,
+            ':entityType': 'Folder',
+            // ':deletedAt': null,
+            ':org': orgId,
+        }),
+    };
+
+    const command = new QueryCommand(queryParams);
+    const result = await dynamoDb.send(command);
+
+    const data = result.Items?.map((item) => unmarshall(item));
+    return (
+        data?.filter((a) => !!a).map((r) => fromFolderRecordToJson(r as any)) ??
+        []
     );
 }

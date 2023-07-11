@@ -1,5 +1,5 @@
 import { PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
-import { cleanAndMarshall, logger, sendWriteCommand } from '@common/utils';
+import { cleanAndMarshall, sendWriteCommand } from '@common/utils';
 import { config } from '@config';
 import { randomUUID } from 'crypto';
 import * as TE from 'fp-ts/TaskEither';
@@ -40,14 +40,14 @@ export function createFolder(
         Item: cleanAndMarshall(parentRecord),
     };
 
-    logger.debug('createFolder Record:', record);
+    //logger.debug('createFolder Record:', record);
 
     const params: PutItemCommandInput = {
         TableName: config.tables.assetTable,
         Item: cleanAndMarshall(record),
     };
 
-    logger.debug('createFolder params:', params);
+    //logger.debug('createFolder params:', params);
 
     return pipe(
         new PutItemCommand(parentParams),

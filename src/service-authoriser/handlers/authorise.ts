@@ -1,5 +1,4 @@
 import { APIGatewayAuthorizerEvent, Context } from 'aws-lambda';
-import { logger } from '../../common';
 import { AWSPolicyGenerator, Authoriser } from '../lib';
 
 const AUDIENCE = process.env.AUDIENCE;
@@ -14,26 +13,26 @@ export function handler(
     try {
         if (event.type === 'TOKEN') {
             if (!AUDIENCE) {
-                logger.debug(
-                    `Audience not configured in env vars.
-                    Expected 'AUDIENCE' to be set.`
-                );
+                //logger.debug(
+                //     `Audience not configured in env vars.
+                //     Expected 'AUDIENCE' to be set.`
+                // );
                 throw new Error('Bad configuration');
             }
 
             if (!JWKS_URI) {
-                logger.debug(
-                    `JWKS uri not configured in env vars.
-                    Expected 'JWKS_URI' to be set.`
-                );
+                //logger.debug(
+                //     `JWKS uri not configured in env vars.
+                //     Expected 'JWKS_URI' to be set.`
+                // );
                 throw new Error('Bad configuration');
             }
 
             if (!TOKEN_ISSUER) {
-                logger.debug(
-                    `Token issuer not configured in env vars.
-                    Expected 'TOKEN_ISSUER' to be set.`
-                );
+                //logger.debug(
+                //     `Token issuer not configured in env vars.
+                //     Expected 'TOKEN_ISSUER' to be set.`
+                // );
                 throw new Error('Bad configuration');
             }
 
@@ -55,12 +54,12 @@ export function handler(
                     return cb(null, policy);
                 })
                 .catch((err) => {
-                    logger.info(err);
+                    //logger.info(err);
                     cb('Unauthorized');
                 });
         }
     } catch (err) {
-        logger.info(err);
+        //logger.info(err);
         cb('Internal Server Error');
     }
     cb('Unauthorized');

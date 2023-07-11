@@ -80,6 +80,10 @@ custom:
                 local: ${env:AWS_ACCESS_KEY_ID}
             accessKey:
                 local: ${env:AWS_SECRET_ACCESS_KEY}
+        treeTable:
+            production: 'damdam-tree-production'
+            staging: 'damdam-tree-staging'
+            local: 'damdam-tree-staging'
         assetTable:
             production: 'damdam-assets-production'
             staging: 'damdam-assets-staging'
@@ -101,6 +105,7 @@ provider:
         ASSET_TABLE_GSI_WRITE_CAPACITY: 5
         ASSET_TABLE_NAME: ${self:custom.environment.assetTable.${self:custom.currentStage}}
         ASSET_BUCKET_NAME: ${self:custom.environment.assetBucket.${self:custom.currentStage}}
+        TREE_TABLE_NAME: ${self:custom.environment.treeTable.${self:custom.currentStage}}
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
         ENV: ${self:custom.currentStage}
         LOG_LEVEL: ${self:custom.logLevel, 'info'}
