@@ -1,8 +1,12 @@
 import { HttpBadRequestError } from '@common/errors';
 import { Ok, response } from '@common/responses';
-import { getOrgIdFromEvent, parseBody } from '@common/utils';
+import {
+    APIGatewayProxyEventWithOrg,
+    parseBody,
+    withErrorWrapper,
+    withOrgWrapper,
+} from '@common/utils';
 import { config } from '@config';
-import { APIGatewayProxyEvent } from 'aws-lambda';
 import { randomUUID } from 'crypto';
 import { array } from 'fp-ts';
 import * as O from 'fp-ts/Option';
@@ -11,9 +15,7 @@ import { pipe } from 'fp-ts/lib/function';
 import mime from 'mime';
 import { createPresignedPost } from '../lib/createPresignedUrl';
 
-export async function handler(event: APIGatewayProxyEvent) {
-    const orgId = getOrgIdFromEvent(event);
-
+async function createUploadUrlHandler(event: APIGatewayProxyEventWithOrg) {
     const parsedBody = pipe(
         event.body,
         parseBody as any,
@@ -24,7 +26,7 @@ export async function handler(event: APIGatewayProxyEvent) {
 
     const { fileNames } = parsedBody as any;
     if (!Array.isArray(fileNames)) {
-        return new HttpBadRequestError().toResponse();
+        throw new HttpBadRequestError();
     }
 
     const keys = fileNames.map(String);
@@ -35,7 +37,7 @@ export async function handler(event: APIGatewayProxyEvent) {
         array.map((fileName) => {
             const id = randomUUID();
             const name = fileName.replace(/[^a-zA-Z0-9.]/gi, '_');
-            const key = `uploads/${orgId}/${id}/${name}`;
+            const key = `uploads/${event.org.id}/${id}/${name}`;
             const fileType = mime.getType(name);
 
             return pipe(
@@ -49,3 +51,5 @@ export async function handler(event: APIGatewayProxyEvent) {
 
     return pipe(createSignedUrls, response(Ok))();
 }
+
+export const handler = withErrorWrapper(withOrgWrapper(createUploadUrlHandler));

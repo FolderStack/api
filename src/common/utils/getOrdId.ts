@@ -1,34 +1,64 @@
+import { QueryCommand } from '@aws-sdk/client-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { HttpUnauthorizedError } from '@common/errors';
 import { config } from '@config';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import * as O from 'fp-ts/Option';
-import { pipe } from 'fp-ts/function';
+import * as JWT from 'jsonwebtoken';
+import { dynamoDb } from './dynamodb';
 
-export function getOrgIdFromEvent(event: APIGatewayProxyEvent) {
+export async function getOrgFromEvent(event: APIGatewayProxyEvent) {
     let obj: any = event.requestContext.authorizer;
+    let clientId: string | undefined = obj?.clientId;
+    let hostName: string | undefined = obj?.hostName;
+
     if (config.isLocal) {
-        let test;
-        try {
-            test = JSON.parse(
-                event.headers['X-Test-Authorizer'] ??
-                    event.headers['x-test-authorizer'] ??
-                    '{}'
-            );
-        } catch (err) {
-            // ignored...
+        let token =
+            event.headers['Authorization'] ?? event.headers['authorization'];
+        token = String(token).split('Bearer ')?.[1] ?? null;
+
+        if (!token) {
+            throw new HttpUnauthorizedError();
         }
-        obj = Object.keys(test).length > 0 ? test : obj;
+        const data = JWT.decode(token) as JWT.JwtPayload;
+        clientId = data.aud?.toString();
+        hostName = event.headers['host'];
     }
 
-    const orgOption = pipe(
-        O.fromNullable(obj?.orgId),
-        O.filter((org: any) => typeof org === 'string' && org !== '')
-    );
+    const getOAuthInfo = new QueryCommand({
+        TableName: config.tables.table,
+        KeyConditionExpression: 'PK = :PK',
+        FilterExpression: 'entityType = :entityType AND clientId = :clientId',
+        ExpressionAttributeValues: marshall({
+            ':PK': `ClientID#${hostName}`,
+            ':entityType': 'OAuthConfig',
+            ':clientId': clientId,
+        }),
+    });
 
-    if (O.isNone(orgOption)) {
-        throw new HttpUnauthorizedError();
-    }
+    const configResult = await dynamoDb.send(getOAuthInfo);
 
-    console.log('OrgId', orgOption.value);
-    return orgOption.value;
+    let oauthConfig = configResult.Items?.[0] ?? null;
+    if (!oauthConfig) return null;
+    oauthConfig = unmarshall(oauthConfig);
+
+    const getOrg = new QueryCommand({
+        TableName: config.tables.table,
+        KeyConditionExpression: 'PK = :PK',
+        FilterExpression: 'entityType = :entityType',
+        ExpressionAttributeValues: marshall({
+            ':PK': oauthConfig.SK,
+            ':entityType': 'Organisation',
+        }),
+    });
+
+    const orgResult = await dynamoDb.send(getOrg);
+
+    let org: Record<string, any> | null = orgResult.Items?.[0] ?? null;
+    if (!org) return null;
+    org = unmarshall(org);
+
+    return {
+        id: org.PK.split('#')[1],
+        name: org.SK.split('#')[1],
+    };
 }

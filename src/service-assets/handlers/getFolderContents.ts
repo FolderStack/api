@@ -1,18 +1,17 @@
 import { HttpBadRequestError } from '@common/errors';
 import { Ok, response } from '@common/responses';
-import { getOrgIdFromEvent } from '@common/utils';
-import { APIGatewayProxyEvent } from 'aws-lambda';
+import {
+    APIGatewayProxyEventWithOrg,
+    withErrorWrapper,
+    withOrgWrapper,
+} from '@common/utils';
 import { pipe } from 'fp-ts/lib/function';
 import _ from 'lodash';
 import { getContentsOfFolder } from '../lib/db';
 
-export async function handler(event: APIGatewayProxyEvent) {
-    const orgId = getOrgIdFromEvent(event);
-
+async function getFolderContentsHandler(event: APIGatewayProxyEventWithOrg) {
     const folderId = _.get(event, 'pathParameters.folderId', null);
-    if (!folderId) {
-        return new HttpBadRequestError().toResponse();
-    }
+    if (!folderId) throw new HttpBadRequestError();
 
     const params = event.queryStringParameters;
 
@@ -29,7 +28,7 @@ export async function handler(event: APIGatewayProxyEvent) {
     return pipe(
         getContentsOfFolder({
             folderId,
-            orgId,
+            orgId: event.org.id,
             filter: {
                 from: filterFrom,
                 to: filterTo,
@@ -47,3 +46,7 @@ export async function handler(event: APIGatewayProxyEvent) {
         response(Ok)
     )();
 }
+
+export const handler = withErrorWrapper(
+    withOrgWrapper(getFolderContentsHandler)
+);

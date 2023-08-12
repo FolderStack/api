@@ -47,7 +47,7 @@ custom:
         lambdaPort: 4001
     dynamodb:
         stages:
-            - local
+            - None
         start:
             migrate: true
             inMemory: true
@@ -68,7 +68,10 @@ custom:
         skipCacheInvalidation: false
     layers:
         - arn:aws:lambda:${self:provider.region}:943013980633:layer:SentryNodeServerlessSDK:26
-    table: "folderstack-${self:custom.currentStage}"
+    table:
+        local: "folderstack-staging"
+        staging: "folderstack-staging"
+        production: "folderstack-production"
     bucket: "folderstack-assets-${self:custom.currentStage}"
 
 provider:
@@ -79,7 +82,7 @@ provider:
     environment:
         ENV: ${self:custom.currentStage}
         LOG_LEVEL: ${self:custom.logLevel, 'info'}
-        TABLE_NAME: ${self:custom.table}
+        TABLE_NAME: ${self:custom.table.${self:custom.currentStage}}
         BUCKET_NAME: ${self:custom.bucket}
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: '0'
     iamRoleStatements:

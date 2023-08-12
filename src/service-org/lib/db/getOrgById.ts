@@ -1,26 +1,33 @@
-import { GetItemCommand } from '@aws-sdk/client-dynamodb';
+import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { HttpNotFoundError } from '@common/errors';
-import { dynamoDb, logger } from '@common/utils';
+import { dynamoDb } from '@common/utils';
 import { config } from '@config';
 
 export async function getOrgById(id: string) {
     try {
-        const getOrg = new GetItemCommand({
+        const getOrg = new QueryCommand({
             TableName: config.tables.table,
-            Key: marshall({
-                PK: `OrgID#${id}`,
-                SK: `OrgName#${name}`,
+            KeyConditionExpression: `PK = :PK`,
+            FilterExpression: 'entityType = :entityType',
+            ExpressionAttributeValues: marshall({
+                ':PK': `OrgID#${id}`,
+                ':entityType': 'Organisation',
             }),
         });
 
         const orgOutput = await dynamoDb.send(getOrg);
 
-        if (!orgOutput?.Item) throw new Error();
+        const result = orgOutput.Items?.[0];
+        if (!result) throw new Error();
 
-        return unmarshall(orgOutput.Item);
+        const org = unmarshall(result);
+
+        return {
+            id,
+            name: org.SK.split('#')[1],
+        };
     } catch (err) {
-        logger.warn(err);
         throw new HttpNotFoundError();
     }
 }

@@ -6,3 +6,6 @@ export * from './logger';
 export * from './parseBody';
 export * from './s3';
 export * from './sqs/sqs';
+
+export * from './withErrorWrapper';
+export * from './withOrgWrapper';

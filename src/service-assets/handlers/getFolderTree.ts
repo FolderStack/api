@@ -1,10 +1,14 @@
 import { Ok, response } from '@common/responses';
-import { getOrgIdFromEvent } from '@common/utils';
-import { APIGatewayProxyEvent } from 'aws-lambda';
+import {
+    APIGatewayProxyEventWithOrg,
+    withErrorWrapper,
+    withOrgWrapper,
+} from '@common/utils';
 import { pipe } from 'fp-ts/lib/function';
 import { getFolderTree } from '../lib/db/getFolderTree';
 
-export async function handler(event: APIGatewayProxyEvent) {
-    const org = getOrgIdFromEvent(event);
-    return pipe(getFolderTree('ROOT', org), response(Ok))();
+async function getFolderTreeHandler(event: APIGatewayProxyEventWithOrg) {
+    return pipe(getFolderTree('ROOT', event.org.id), response(Ok))();
 }
+
+export const handler = withErrorWrapper(withOrgWrapper(getFolderTreeHandler));
