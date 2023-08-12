@@ -3,13 +3,14 @@ import {
     HttpError,
     HttpInternalServerError,
 } from '@common/errors';
-import { Created, response } from '@common/responses';
+import { NoContent, response } from '@common/responses';
 import { getOrgIdFromEvent, parseBody } from '@common/utils';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import * as O from 'fp-ts/Option';
+import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/function';
 import _ from 'lodash';
-import { createFile } from '../lib/db';
+import { deleteFile } from '../lib/db/deleteFile';
 
 export async function handler(event: APIGatewayProxyEvent) {
     try {
@@ -28,11 +29,25 @@ export async function handler(event: APIGatewayProxyEvent) {
             })
         );
 
-        const { name, file, fileSize, fileType } = parsedBody;
+        const { ids } = parsedBody;
 
         return pipe(
-            createFile(name, file, fileSize, fileType, folderId, org),
-            response(Created)
+            TE.right(ids),
+            TE.chain(() => {
+                if (Array.isArray(ids)) {
+                    // We use TE.sequenceArray() to transform an array of TaskEithers into a single TaskEither
+                    const deleteTasks = (ids as string[]).map((id) =>
+                        deleteFile(id, folderId, org)
+                    );
+                    return pipe(
+                        deleteTasks,
+                        TE.sequenceArray,
+                        TE.map(() => void 0) // maps all successful deletions to void 0
+                    );
+                }
+                return TE.right(void 0);
+            }),
+            response(NoContent)
         )();
     } catch (err: any) {
         //logger.warn({ err });

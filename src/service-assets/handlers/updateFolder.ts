@@ -4,7 +4,7 @@ import {
     HttpInternalServerError,
 } from '@common/errors';
 import { NoContent, response } from '@common/responses';
-import { getOrgId, parseBody } from '@common/utils';
+import { getOrgIdFromEvent, parseBody } from '@common/utils';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
@@ -13,7 +13,7 @@ import { updateFolder } from '../lib/db/updateFolder';
 
 export async function handler(event: APIGatewayProxyEvent) {
     try {
-        const org = getOrgId(event);
+        const org = getOrgIdFromEvent(event);
 
         const folderId = _.get(event.pathParameters, 'folderId', null);
         if (!folderId || _.isEmpty(folderId)) {

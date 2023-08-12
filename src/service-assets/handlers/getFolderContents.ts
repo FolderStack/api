@@ -1,13 +1,13 @@
 import { HttpBadRequestError } from '@common/errors';
 import { Ok, response } from '@common/responses';
-import { getOrgId } from '@common/utils';
+import { getOrgIdFromEvent } from '@common/utils';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { pipe } from 'fp-ts/lib/function';
 import _ from 'lodash';
 import { getContentsOfFolder } from '../lib/db';
 
 export async function handler(event: APIGatewayProxyEvent) {
-    const orgId = getOrgId(event);
+    const orgId = getOrgIdFromEvent(event);
 
     const folderId = _.get(event, 'pathParameters.folderId', null);
     if (!folderId) {
@@ -23,8 +23,8 @@ export async function handler(event: APIGatewayProxyEvent) {
     let sortBy = _.get(params, 'sortBy', 'name');
     let sortDir = _.get(params, 'sort', 'asc');
 
+    const page = Number(_.get(params, 'page', 1));
     const pageSize = Number(_.get(params, 'pageSize', 20));
-    const cursor = _.get(params, 'cursor');
 
     return pipe(
         getContentsOfFolder({
@@ -40,8 +40,8 @@ export async function handler(event: APIGatewayProxyEvent) {
                 order: sortDir,
             },
             pagination: {
+                page,
                 pageSize: Number.isNaN(pageSize) ? 20 : pageSize,
-                cursor,
             },
         }),
         response(Ok)

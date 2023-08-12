@@ -9,6 +9,7 @@ getFolderTree:
 
 getFolderContents:
   handler: ./src/service-assets/handlers/getFolderContents.handler
+  timeout: 30
   events:
     - http:
         method: GET
@@ -18,7 +19,6 @@ getFolderContents:
 # Admin Only
 updateTreeOrder:
   handler: ./src/service-assets/handlers/updateTreeOrder.handler
-  timeout: 6000
   events:
     - http:
         method: PATCH
@@ -33,12 +33,12 @@ createFile:
         path: /folders/{folderId}/files
         cors: true
 
-deleteFile:
-  handler: ./src/service-assets/handlers/deleteFile.handler
+deleteFiles:
+  handler: ./src/service-assets/handlers/deleteFiles.handler
   events:
     - http:
         method: DELETE
-        path: /folders/{folderId}/files/{fileId}
+        path: /folders/{folderId}/files
         cors: true
 
 createFolder:
@@ -71,4 +71,12 @@ createPresignedUrls:
     - http:
         method: POST
         path: /uploads
+        cors: true
+
+download:
+  handler: ./src/service-assets/handlers/getZipFile.handler
+  events:
+    - http:
+        method: POST
+        path: /downloads
         cors: true

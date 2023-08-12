@@ -17,8 +17,25 @@ export function getFolder(
     folderId: string,
     org: string
 ): TE.TaskEither<Error, IFolder> {
+    // if (folderId.toLowerCase() === 'root') {
+    //     return pipe(
+    //         new QueryCommand({
+    //             TableName: config.tables.table,
+    //             KeyConditionExpression: `PK = :folderId`,
+    //             FilterExpression: `entityType = :entityType AND org = :orgId`,
+    //             ExpressionAttributeValues: marshall({
+    //                 ':folderId': `Folder#${folderId}`,
+    //                 ':orgId': org,
+    //                 ':entityType': 'Folder',
+    //             }),
+    //         }),
+    //         sendReadCommand<IFolderRecord>,
+    //         TE.map((results) => results.map(fromFolderRecordToJson))
+    //     );
+    // }
+
     const findParentParams: QueryCommandInput = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         KeyConditionExpression: `PK = :folderId`,
         FilterExpression: `entityType = :entityType AND org = :orgId`,
         ExpressionAttributeValues: marshall({
@@ -32,12 +49,13 @@ export function getFolder(
         new QueryCommand(findParentParams),
         sendReadCommand<IFolderParentRecord>,
         TE.chain(([res]) => {
+            console.log(res, findParentParams);
             if (!res) {
                 return TE.left(new HttpNotFoundError());
             }
 
             const getParams: GetItemCommandInput = {
-                TableName: config.tables.assetTable,
+                TableName: config.tables.table,
                 Key: marshall({
                     PK: res.SK.replace('Parent', 'Folder'),
                     SK: res.PK,
@@ -70,8 +88,25 @@ export function getFolder(
 }
 
 export async function getFolderAsync(folderId: string, org: string) {
+    // if (folderId.toLowerCase() === 'root') {
+    //     const command = new QueryCommand({
+    //         TableName: config.tables.table,
+    //         KeyConditionExpression: `PK = :folderId`,
+    //         FilterExpression: `entityType = :entityType AND org = :orgId`,
+    //         ExpressionAttributeValues: marshall({
+    //             ':folderId': `Folder#${folderId}`,
+    //             ':orgId': org,
+    //             ':entityType': 'Folder',
+    //         }),
+    //     });
+    //     const result = await dynamoDb.send(command);
+    //     return result.Items?.map((record) =>
+    //         fromFolderRecordToJson(unmarshall(record) as any)
+    //     );
+    // }
+
     const findParentParams: QueryCommandInput = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         KeyConditionExpression: `PK = :folderId`,
         FilterExpression: `entityType = :entityType AND org = :orgId`,
         ExpressionAttributeValues: marshall({
@@ -91,7 +126,7 @@ export async function getFolderAsync(folderId: string, org: string) {
     }
 
     const getParams: GetItemCommandInput = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         Key: marshall({
             PK: parent.SK.replace('Parent', 'Folder'),
             SK: parent.PK,

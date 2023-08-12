@@ -67,7 +67,7 @@ export function updateFolder(
             }
 
             const updateParams: UpdateItemCommandInput = {
-                TableName: config.tables.assetTable,
+                TableName: config.tables.table,
                 Key: marshall({
                     PK: `Folder#${parent}`,
                     SK: `Folder#${result.id}`,
@@ -146,7 +146,7 @@ export async function updateFolderAsync(
     }
 
     const updateParams: UpdateItemCommandInput = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         Key: marshall({
             PK: `Folder#${parent}`,
             SK: `Folder#${result.id}`,

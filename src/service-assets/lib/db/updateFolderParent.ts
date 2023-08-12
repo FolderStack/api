@@ -25,7 +25,7 @@ function getParams(
         TransactItems: [
             {
                 Delete: {
-                    TableName: config.tables.assetTable, // or whatever your table's name is
+                    TableName: config.tables.table, // or whatever your table's name is
                     Key: {
                         PK: `Folder#${folderId}`,
                         SK: `Parent#${oldParentId}`,
@@ -34,7 +34,7 @@ function getParams(
             },
             {
                 Delete: {
-                    TableName: config.tables.assetTable, // or whatever your table's name is
+                    TableName: config.tables.table, // or whatever your table's name is
                     Key: {
                         PK: `Folder#${oldParentId}`,
                         SK: `Folder#${folderId}`,
@@ -43,7 +43,7 @@ function getParams(
             },
             {
                 Put: {
-                    TableName: config.tables.assetTable,
+                    TableName: config.tables.table,
                     Item: {
                         ..._folder,
                         PK: `Folder#${newParentId}`,
@@ -53,7 +53,7 @@ function getParams(
             },
             {
                 Put: {
-                    TableName: config.tables.assetTable,
+                    TableName: config.tables.table,
                     Item: {
                         PK: `Folder#${folderId}`,
                         SK: `Parent#${newParentId}`,

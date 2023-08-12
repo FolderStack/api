@@ -1,10 +1,12 @@
 createThumbnail:
     handler: ./src/service-thumbnails/handlers/createThumbnail.handler
+    timeout: 30
     events:
       - s3: 
-          bucket: ${self:custom.environment.assetBucket.${self:custom.currentStage}}
+          bucket: ${self:custom.bucket}
           event: s3:ObjectCreated:*
           rules:
             - prefix: uploads/
     layers:
-      - arn:aws:lambda:ap-southeast-2:895952315185:layer:image-magick:1	
+      - arn:aws:lambda:ap-southeast-2:895952315185:layer:image-magick:1
+      - arn:aws:lambda:ap-southeast-2:895952315185:layer:ghostscript:1

@@ -1,8 +1,8 @@
 Resources:
-  AssetTable:
+  FolderStackTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
-      TableName: ${self:provider.environment.ASSET_TABLE_NAME}
+      TableName: ${self:provider.environment.TABLE_NAME}
       AttributeDefinitions:
         - AttributeName: PK
           AttributeType: S
@@ -10,7 +10,7 @@ Resources:
           AttributeType: S
         - AttributeName: name
           AttributeType: S
-        - AttributeName: org
+        - AttributeName: entityType
           AttributeType: S
         - AttributeName: fileSize
           AttributeType: N
@@ -24,8 +24,8 @@ Resources:
         - AttributeName: SK
           KeyType: RANGE
       ProvisionedThroughput:
-        ReadCapacityUnits: ${self:provider.environment.ASSET_TABLE_READ_CAPACITY}
-        WriteCapacityUnits: ${self:provider.environment.ASSET_TABLE_WRITE_CAPACITY}
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
       GlobalSecondaryIndexes:
         - IndexName: nameIndex
           KeySchema:
@@ -36,9 +36,9 @@ Resources:
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
-            ReadCapacityUnits: ${self:provider.environment.ASSET_TABLE_GSI_READ_CAPACITY}
-            WriteCapacityUnits: ${self:provider.environment.ASSET_TABLE_GSI_WRITE_CAPACITY}
-        - IndexName: fileSizeIndex
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: sizeIndex
           KeySchema:
             - AttributeName: PK
               KeyType: HASH
@@ -47,8 +47,8 @@ Resources:
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
-            ReadCapacityUnits: ${self:provider.environment.ASSET_TABLE_GSI_READ_CAPACITY}
-            WriteCapacityUnits: ${self:provider.environment.ASSET_TABLE_GSI_WRITE_CAPACITY}
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
         - IndexName: createdAtIndex
           KeySchema:
             - AttributeName: PK
@@ -58,8 +58,8 @@ Resources:
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
-            ReadCapacityUnits: ${self:provider.environment.ASSET_TABLE_GSI_READ_CAPACITY}
-            WriteCapacityUnits: ${self:provider.environment.ASSET_TABLE_GSI_WRITE_CAPACITY}
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
         - IndexName: updatedAtIndex
           KeySchema:
             - AttributeName: PK
@@ -69,16 +69,16 @@ Resources:
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
-            ReadCapacityUnits: ${self:provider.environment.ASSET_TABLE_GSI_READ_CAPACITY}
-            WriteCapacityUnits: ${self:provider.environment.ASSET_TABLE_GSI_WRITE_CAPACITY}
-        - IndexName: orgIndex
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: entityTypeIndex
           KeySchema:
             - AttributeName: PK
               KeyType: HASH
-            - AttributeName: org
+            - AttributeName: entityType
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
-            ReadCapacityUnits: ${self:provider.environment.ASSET_TABLE_GSI_READ_CAPACITY}
-            WriteCapacityUnits: ${self:provider.environment.ASSET_TABLE_GSI_WRITE_CAPACITY}
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5

@@ -4,12 +4,16 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
 
-export function getOrgId(event: APIGatewayProxyEvent) {
+export function getOrgIdFromEvent(event: APIGatewayProxyEvent) {
     let obj: any = event.requestContext.authorizer;
     if (config.isLocal) {
         let test;
         try {
-            test = JSON.parse(event.headers['X-Test-Authorizer'] ?? '{}');
+            test = JSON.parse(
+                event.headers['X-Test-Authorizer'] ??
+                    event.headers['x-test-authorizer'] ??
+                    '{}'
+            );
         } catch (err) {
             // ignored...
         }
@@ -25,6 +29,6 @@ export function getOrgId(event: APIGatewayProxyEvent) {
         throw new HttpUnauthorizedError();
     }
 
-    //logger.debug('Org: ' + orgOption.value);
+    console.log('OrgId', orgOption.value);
     return orgOption.value;
 }

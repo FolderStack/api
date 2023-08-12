@@ -6,6 +6,7 @@ import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
 import { fromFolderRecordToJson } from '../fromFolderRecordToJson';
 import { IFolder, IFolderRecord } from '../type';
+import { updateFolderFileSize } from './updateFolderFileSize';
 
 export function createFolder(
     name: string,
@@ -36,14 +37,14 @@ export function createFolder(
     };
 
     const parentParams = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         Item: cleanAndMarshall(parentRecord),
     };
 
     //logger.debug('createFolder Record:', record);
 
     const params: PutItemCommandInput = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         Item: cleanAndMarshall(record),
     };
 
@@ -52,16 +53,14 @@ export function createFolder(
     return pipe(
         new PutItemCommand(parentParams),
         sendWriteCommand,
+        TE.chain(() => pipe(new PutItemCommand(params), sendWriteCommand)),
         TE.chain(() => {
-            return pipe(new PutItemCommand(params), sendWriteCommand);
+            if (parent) {
+                return updateFolderFileSize(parent, 0, org);
+            } else {
+                return TE.right(null);
+            }
         }),
-        // TE.chain(() => {
-        //     if (parent && parent !== 'ROOT') {
-        //         // return pipe(updateFolderFileSize(parent, 0, org));
-        //     } else {
-        //         return TE.right(null);
-        //     }
-        // }),
         TE.map(() => fromFolderRecordToJson(record))
     );
 }

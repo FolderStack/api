@@ -16,13 +16,19 @@ export function createFile(
     folder: string,
     org: string
 ): TE.TaskEither<Error, IFile> {
+    const extractKeyFromS3Url = (url: string) => {
+        const fileKey = url.split('?')[0].split('amazonaws.com/')[1];
+        const s3Bucket = url.split('://')[1].split('.s3')[0];
+        return `s3://${s3Bucket}/${fileKey}`;
+    };
+
     const id = randomUUID();
     const record: IFileRecord = {
         PK: `Folder#${folder}`,
         SK: `File#${id}`,
         entityType: 'File',
         name,
-        asset: file,
+        asset: extractKeyFromS3Url(file),
         fileSize,
         fileType,
         org,
@@ -32,14 +38,14 @@ export function createFile(
     };
 
     const params: PutItemCommandInput = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         Item: cleanAndMarshall(record),
     };
 
     return pipe(
         new PutItemCommand(params),
         sendWriteCommand,
-        () => updateFolderFileSize(folder, fileSize, org),
+        TE.chain(() => updateFolderFileSize(folder, fileSize, org)),
         TE.map(() => fromFileRecordToJson(record))
     );
 }

@@ -25,12 +25,12 @@ export function deleteFile(
     });
 
     const getParams: GetItemCommandInput = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         Key,
     };
 
     const deleteParams: DeleteItemCommandInput = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         Key,
     };
 
@@ -43,6 +43,10 @@ export function deleteFile(
         TE.chain((result) => {
             const item = unmarshall(result.Item ?? {});
 
+            if (Object.keys(item ?? {}).length === 0) {
+                return TE.right(void 0);
+            }
+
             if (item.org !== org) return TE.left(new HttpForbiddenError());
 
             const file = fromFileRecordToJson(item as IFileRecord);
@@ -51,7 +55,12 @@ export function deleteFile(
             return pipe(
                 new DeleteItemCommand(deleteParams),
                 sendWriteCommand,
-                () => updateFolderFileSize(folder, -fileSize, org)
+                TE.chain(() => {
+                    if (folder && folder !== 'ROOT') {
+                        return updateFolderFileSize(folder, -fileSize, org);
+                    }
+                    return TE.right(void 0);
+                })
             );
         })
     );

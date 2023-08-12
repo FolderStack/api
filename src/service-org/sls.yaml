@@ -1,0 +1,7 @@
+getOrgConfig:
+  handler: ./src/service-org/handlers/getConfig.handler
+  events:
+    - http:
+        method: GET
+        path: /org/me
+        cors: true

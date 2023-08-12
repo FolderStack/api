@@ -20,7 +20,7 @@ export function updateFolderFileSize(
             if (result) {
                 const fileSize = result.fileSize + delta;
                 const updateParams: UpdateItemCommandInput = {
-                    TableName: config.tables.assetTable,
+                    TableName: config.tables.table,
                     Key: marshall({
                         PK: `Folder#${result.parent}`,
                         SK: `Folder#${result.id}`,
@@ -29,7 +29,7 @@ export function updateFolderFileSize(
                         'SET fileSize = :fileSize, itemCount = itemCount + :inc',
                     ExpressionAttributeValues: marshall({
                         ':fileSize': Math.max(0, fileSize),
-                        ':inc': delta < 0 ? -1 : 1, // Decrement if we're deleting.
+                        ':inc': Math.max(0, delta < 0 ? -1 : 1), // Decrement if we're deleting.
                     }),
                 };
 

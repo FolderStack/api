@@ -10,7 +10,7 @@ import { IFolderRecord } from '../type';
 
 export function getSubFolders(parentId: string, orgId: string) {
     const queryParams: QueryCommandInput = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         KeyConditionExpression: `PK = :pk`,
         FilterExpression: `entityType = :entityType AND org = :org`,
         ExpressionAttributeValues: marshall({
@@ -35,7 +35,7 @@ export function getSubFolders(parentId: string, orgId: string) {
 
 export async function getSubFoldersAsync(parentId: string, orgId: string) {
     const queryParams: QueryCommandInput = {
-        TableName: config.tables.assetTable,
+        TableName: config.tables.table,
         KeyConditionExpression: `PK = :pk`,
         FilterExpression: `entityType = :entityType AND org = :org`,
         ExpressionAttributeValues: marshall({

@@ -14,11 +14,14 @@ export function sendWriteCommand(
     return pipe(
         TE.tryCatch(
             async () => {
-                const result = await dynamoDb.send(command as any);
-                // console.log(result);
+                await dynamoDb.send(command as any);
             },
-            (error) =>
-                error instanceof Error ? error : new HttpInternalServerError()
+            (error) => {
+                console.log(error);
+                return error instanceof Error
+                    ? error
+                    : new HttpInternalServerError();
+            }
         )
     );
 }

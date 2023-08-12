@@ -1,0 +1,218 @@
+[
+    {
+        "PK": "Folder#ROOT",
+        "SK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "Folder",
+        "org": "test",
+        "name": "Folder 1",
+        "fileSize": 0,
+        "itemCount": 11,
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#ROOT",
+        "entityType": "FolderParent",
+        "org": "test"
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#1",
+        "name": "1",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#1",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#2",
+        "name": "2",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#2",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#3",
+        "name": "3",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#3",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#4",
+        "name": "4",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#4",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#5",
+        "name": "5",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#5",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#6",
+        "name": "6",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#6",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#7",
+        "name": "7",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#7",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#8",
+        "name": "8",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#8",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#9",
+        "name": "9",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#9",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#10",
+        "name": "10",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#10",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "SK": "Parent#11",
+        "name": "11",
+        "entityType": "Folder",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "Folder#11",
+        "SK": "Parent#FFFFFFFF-FFFF-FFFF-FFFFFFFFFFFF",
+        "entityType": "FolderParent",
+        "org": "test",
+        "createdAt": 0
+    },
+    {
+        "PK": "OrgID#test",
+        "SK": "OrgName#test",
+        "entityType": "Organisation",
+        "hostname": "test.pkdev.local"
+    },
+    {
+        "PK": "OrgName#test",
+        "SK": "OrgID#test",
+        "entityType": "OrganisationName"
+    },
+    {
+        "PK": "OrgID#test",
+        "SK": "Theme",
+        "entityType": "Theme",
+        "theme": {
+            "token": {
+                "colorPrimary": "#53575e",
+                "colorPrimaryHover": "#65676b",
+                "itemHoverColor": "#65676b",
+                "borderRadius": 4,
+                "boxShadow": "0 0px 0px 0 rgba(0, 0, 0, 0), 0 0px 0px -0px rgba(0, 0, 0, 0), 0 0px 0px 0px rgba(0, 0, 0, 0)",
+                "boxShadowSecondary": "0 0px 0px 0 rgba(0, 0, 0, 0), 0 0px 0px -0px rgba(0, 0, 0, 0), 0 0px 0px 0px rgba(0, 0, 0, 0)",
+                "colorError": "#B00020"
+            }
+        }
+    },
+    {
+        "PK": "OrgID#test",
+        "SK": "Config",
+        "entityType": "Config",
+        "config": {
+            "logo": ""
+        }
+    }
+]

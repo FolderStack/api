@@ -38,6 +38,7 @@ export interface IFile {
     parent: string;
     name: string;
     asset: string;
+    thumbnail?: string;
     fileSize: number;
     fileType: string;
     createdAt: Date;

@@ -1,9 +1,4 @@
-import {
-    DeleteItemCommand,
-    DeleteItemCommandInput,
-} from '@aws-sdk/client-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
-import { sendWriteCommand } from '@common/utils';
+import { sendBatchWriteCommand } from '@common/utils';
 import { config } from '@config';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
@@ -26,20 +21,32 @@ export function deleteFolder(
         //     );
         // }),
         TE.chain((result) => {
+            if (Array.isArray(result)) return TE.right(void 0);
             const parent = result.parent;
             const fileSize = result.fileSize ?? 0;
 
-            const deleteParams: DeleteItemCommandInput = {
-                TableName: config.tables.assetTable,
-                Key: marshall({
+            const deleteFolderParams = {
+                TableName: config.tables.table,
+                Key: {
                     PK: `Folder#${parent}`,
                     SK: `Folder#${result.id}`,
-                }),
+                },
+            };
+
+            const deleteFolderParentParams = {
+                TableName: config.tables.table,
+                Key: {
+                    PK: `Folder#${result.id}`,
+                    SK: `Parent#${parent}`,
+                },
             };
 
             return pipe(
-                new DeleteItemCommand(deleteParams),
-                sendWriteCommand,
+                [
+                    { Delete: deleteFolderParams },
+                    { Delete: deleteFolderParentParams },
+                ],
+                sendBatchWriteCommand,
                 TE.chain(() => {
                     if (parent && parent !== 'ROOT') {
                         return updateFolderFileSize(parent, -fileSize, org);
