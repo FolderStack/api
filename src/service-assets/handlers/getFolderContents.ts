@@ -1,29 +1,25 @@
-import { HttpBadRequestError } from '@common/errors';
 import { Ok, response } from '@common/responses';
 import {
     APIGatewayProxyEventWithOrg,
+    getPathParam,
     withErrorWrapper,
     withOrgWrapper,
 } from '@common/utils';
 import { pipe } from 'fp-ts/lib/function';
-import _ from 'lodash';
 import { getContentsOfFolder } from '../lib/db';
 
 async function getFolderContentsHandler(event: APIGatewayProxyEventWithOrg) {
-    const folderId = _.get(event, 'pathParameters.folderId', null);
-    if (!folderId) throw new HttpBadRequestError();
+    const folderId = getPathParam('folderId', event);
 
-    const params = event.queryStringParameters;
+    const filterFrom = getPathParam('from', event, true);
+    const filterTo = getPathParam('to', event, true);
+    const filterFileTypes = getPathParam('fileTypes', event, true);
 
-    const filterFrom = _.get(params, 'from');
-    const filterTo = _.get(params, 'to');
-    const filterFileTypes = _.get(params, 'fileTypes');
+    const sortBy = getPathParam('sortBy', event, true) ?? 'name';
+    const sortDir = getPathParam('sort', event, true) ?? 'asc';
 
-    let sortBy = _.get(params, 'sortBy', 'name');
-    let sortDir = _.get(params, 'sort', 'asc');
-
-    const page = Number(_.get(params, 'page', 1));
-    const pageSize = Number(_.get(params, 'pageSize', 20));
+    const page = Number(getPathParam('page', event, true) ?? 1);
+    const pageSize = Number(getPathParam('pageSize', event, true) ?? 20);
 
     return pipe(
         getContentsOfFolder({

@@ -5,10 +5,10 @@ import { getSubFolders, getSubFoldersAsync } from './getSubFolders';
 
 export interface IFolderTreeItem {
     id: string;
-    name?: string;
-    order?: number;
+    name: string;
+    order: number;
     children: IFolderTreeItem[];
-    parent?: string;
+    parent: string | null;
 }
 
 export function getFolderTree(
@@ -39,7 +39,7 @@ export function getFolderTree(
                                 id: subFolder.id,
                                 name: subFolder.name,
                                 children: folder.children,
-                                order: subFolder.order,
+                                order: subFolder.order ?? -1,
                                 parent: parentId,
                             };
                         })
@@ -47,6 +47,9 @@ export function getFolderTree(
                 ),
                 TE.map((children) => ({
                     id: parentId,
+                    name: '',
+                    order: 0,
+                    parent: null,
                     children,
                 }))
             );
@@ -82,6 +85,9 @@ export async function getFolderTreeAsync(
 
     return {
         id: parentId,
+        name: '',
+        order: 0,
+        parent: null,
         children,
     };
 }

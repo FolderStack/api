@@ -1,26 +1,31 @@
-import { HttpBadRequestError } from '@common/errors';
 import { NoContent, response } from '@common/responses';
 import {
     APIGatewayProxyEventWithOrg,
-    parseBody,
+    getParsedBody,
+    validate,
     withErrorWrapper,
     withOrgWrapper,
 } from '@common/utils';
-import * as O from 'fp-ts/Option';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/function';
+import { array, lazy, number, object, string } from 'zod';
 import { updateTreeOrderAsync } from '../lib/updateTreeOrder';
 
+const TreeItemSchema = object({
+    id: string(),
+    name: string(),
+    order: number(),
+    children: array(lazy((): any => TreeItemSchema)),
+    parent: string().nullable(),
+});
+
 async function updateTreeOrderHandler(event: APIGatewayProxyEventWithOrg) {
-    const parsedBody = pipe(
-        event.body,
-        parseBody as any,
-        O.getOrElse(() => {
-            throw new HttpBadRequestError();
+    const { items } = validate(
+        getParsedBody(event),
+        object({
+            items: TreeItemSchema.array(),
         })
     );
-
-    const { items } = parsedBody;
 
     return pipe(
         TE.tryCatch(

@@ -1,32 +1,30 @@
-import { HttpBadRequestError } from '@common/errors';
 import { NoContent, response } from '@common/responses';
 import {
     APIGatewayProxyEventWithOrg,
-    parseBody,
+    getParsedBody,
+    getPathParam,
+    validate,
     withErrorWrapper,
     withOrgWrapper,
 } from '@common/utils';
-import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
-import _ from 'lodash';
+import { number, object, string } from 'zod';
 import { updateFolder } from '../lib/db/updateFolder';
 
 async function updateFolderHandler(event: APIGatewayProxyEventWithOrg) {
-    const folderId = _.get(event.pathParameters, 'folderId', null);
-    if (!folderId || _.isEmpty(folderId)) {
-        throw new HttpBadRequestError();
-    }
-
-    const parsedBody = pipe(
-        event.body,
-        parseBody as any,
-        O.getOrElse(() => {
-            throw new HttpBadRequestError();
+    const folderId = getPathParam('folderId', event);
+    const folderUpdate = validate(
+        getParsedBody(event),
+        object({
+            image: string().optional(),
+            fileSize: number().optional(),
+            name: string().optional(),
+            order: number().optional(),
         })
     );
 
     return pipe(
-        updateFolder(folderId, parsedBody, event.org.id),
+        updateFolder(folderId, folderUpdate, event.org.id),
         response(NoContent)
     )();
 }

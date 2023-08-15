@@ -6,6 +6,8 @@ useDotenv: true
 package:
     individually: false
     excludeDevDependencies: true
+    exclude:
+        - 'node_modules/**'
 
 plugins:
     - serverless-domain-manager
@@ -37,11 +39,12 @@ custom:
         createRoute53Record: true
     esbuild:
         bundle: true
-        minify: false
+        minify: true
         target: node16
         packager: yarn
-        sourcemap: true
-        sourcesContent: true
+        sourcemap: false
+        sourcesContent: false
+        external: ['aws-sdk']
     serverless-offline:
         httpPort: 4000
         lambdaPort: 4001

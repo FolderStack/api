@@ -1,35 +1,25 @@
-import { HttpBadRequestError } from '@common/errors';
 import { Ok, response } from '@common/responses';
 import {
     APIGatewayProxyEventWithOrg,
-    parseBody,
+    getParsedBody,
+    validate,
     withErrorWrapper,
     withOrgWrapper,
 } from '@common/utils';
 import archiver from 'archiver';
 import { randomInt } from 'crypto';
-import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/lib/function';
+import { object, string } from 'zod';
 import { zipFolder, zipSelection } from '../lib/archive';
 
 async function getZipeFileHandler(event: APIGatewayProxyEventWithOrg) {
-    const parsedBody = pipe(
-        event.body,
-        parseBody as any,
-        O.getOrElse(() => {
-            throw new HttpBadRequestError();
+    const { folderId, fileIds } = validate(
+        getParsedBody(event),
+        object({
+            folderId: string(),
+            fileIds: string().array().nullable(),
         })
     );
-
-    const { folderId, fileIds = null } = parsedBody;
-
-    if (typeof folderId !== 'string') {
-        throw new HttpBadRequestError();
-    }
-
-    if (fileIds !== null && !Array.isArray(fileIds)) {
-        throw new HttpBadRequestError();
-    }
 
     const archive = archiver('zip');
     const random = randomInt(1, 1000);

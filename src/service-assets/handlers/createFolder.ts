@@ -1,28 +1,27 @@
-import { HttpBadRequestError } from '@common/errors';
 import { Created, response } from '@common/responses';
 import {
     APIGatewayProxyEventWithOrg,
-    parseBody,
+    getParsedBody,
+    validate,
     withErrorWrapper,
     withOrgWrapper,
 } from '@common/utils';
-import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
+import { object, string } from 'zod';
 import { createFolder } from '../lib/db';
 
 export async function createFolderHandler(event: APIGatewayProxyEventWithOrg) {
-    const parsedBody = pipe(
-        event.body,
-        parseBody as any,
-        O.getOrElse(() => {
-            throw new HttpBadRequestError();
+    const { name, image, parent } = validate(
+        getParsedBody(event),
+        object({
+            name: string(),
+            image: string().optional().nullable(),
+            parent: string().optional().nullable(),
         })
     );
 
-    const { name, image = null, parent = null } = parsedBody;
-
     return pipe(
-        createFolder(name, image, parent, event.org.id),
+        createFolder(name, image ?? null, parent ?? null, event.org.id),
         response(Created)
     )();
 }

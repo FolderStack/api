@@ -5,6 +5,7 @@ import { config } from '@config';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import * as JWT from 'jsonwebtoken';
 import { dynamoDb } from './dynamodb';
+import { getOrgOAuthConfig } from './getOrgOAuthConfig';
 
 export async function getOrgFromEvent(event: APIGatewayProxyEvent) {
     let obj: any = event.requestContext.authorizer;
@@ -24,22 +25,8 @@ export async function getOrgFromEvent(event: APIGatewayProxyEvent) {
         hostName = event.headers['host'];
     }
 
-    const getOAuthInfo = new QueryCommand({
-        TableName: config.tables.table,
-        KeyConditionExpression: 'PK = :PK',
-        FilterExpression: 'entityType = :entityType AND clientId = :clientId',
-        ExpressionAttributeValues: marshall({
-            ':PK': `ClientID#${hostName}`,
-            ':entityType': 'OAuthConfig',
-            ':clientId': clientId,
-        }),
-    });
-
-    const configResult = await dynamoDb.send(getOAuthInfo);
-
-    let oauthConfig = configResult.Items?.[0] ?? null;
+    const oauthConfig = await getOrgOAuthConfig(hostName ?? '', clientId ?? '');
     if (!oauthConfig) return null;
-    oauthConfig = unmarshall(oauthConfig);
 
     const getOrg = new QueryCommand({
         TableName: config.tables.table,

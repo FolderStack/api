@@ -123,8 +123,6 @@ async function updateTreeOrderRecurseAsync(
 ): Promise<UpdateItemCommandInput[]> {
     let updateCommands: any[] = [];
 
-    console.log(tree.map((t) => [t.id, t.order]));
-
     for (let i = 0; i < tree.length; i++) {
         const node = tree[i];
 
@@ -185,13 +183,6 @@ export async function updateTreeOrderAsync(
 ) {
     try {
         const items = await updateTreeOrderRecurseAsync(newItems, org);
-        console.log(
-            JSON.stringify(
-                items.filter((i) => !!i),
-                null,
-                4
-            )
-        );
         const command = new TransactWriteCommand({
             TransactItems: items.filter((i) => !!i),
         });

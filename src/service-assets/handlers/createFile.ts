@@ -1,34 +1,38 @@
-import { HttpBadRequestError } from '@common/errors';
 import { Created, response } from '@common/responses';
 import {
     APIGatewayProxyEventWithOrg,
-    parseBody,
+    getParsedBody,
+    getPathParam,
+    validate,
     withErrorWrapper,
     withOrgWrapper,
 } from '@common/utils';
-import * as O from 'fp-ts/Option';
 import { pipe } from 'fp-ts/function';
-import _ from 'lodash';
+import { number, object, string } from 'zod';
 import { createFile } from '../lib/db';
 
 export async function createFileHandler(event: APIGatewayProxyEventWithOrg) {
-    const folderId = _.get(event.pathParameters, 'folderId', null);
-    if (!folderId || _.isEmpty(folderId)) {
-        return new HttpBadRequestError().toResponse();
-    }
+    const folderId = getPathParam('folderId', event);
 
-    const parsedBody = pipe(
-        event.body,
-        parseBody as any,
-        O.getOrElse(() => {
-            throw new HttpBadRequestError();
+    const { name, file, fileSize, fileType } = validate(
+        getParsedBody(event),
+        object({
+            name: string(),
+            file: string(),
+            fileSize: number(),
+            fileType: string(),
         })
     );
 
-    const { name, file, fileSize, fileType } = parsedBody;
-
     return pipe(
-        createFile(name, file, fileSize, fileType, folderId, event.org.id),
+        createFile(
+            name,
+            file,
+            Number(fileSize),
+            fileType,
+            folderId,
+            event.org.id
+        ),
         response(Created)
     )();
 }

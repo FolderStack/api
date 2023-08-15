@@ -1,43 +1,34 @@
 import { APIGatewayAuthorizerEvent, Context } from 'aws-lambda';
 import { AWSPolicyGenerator, Authoriser } from '../lib';
+import { getOrgFromEvent } from '@common/utils';
+import { getOrgConfig } from '../../service-org/lib/db';
 
-const AUDIENCE = process.env.AUDIENCE;
-const JWKS_URI = process.env.JWKS_URI;
-const TOKEN_ISSUER = process.env.TOKEN_ISSUER;
-
-export function handler(
+export async function handler(
     event: APIGatewayAuthorizerEvent,
     _context: Context,
     cb: CallableFunction
 ) {
     try {
         if (event.type === 'TOKEN') {
-            if (!AUDIENCE) {
-                //logger.debug(
-                //     `Audience not configured in env vars.
-                //     Expected 'AUDIENCE' to be set.`
-                // );
+            const org = await getOrgFromEvent(event);
+            const config = await getOrgConfig(org.id);
+
+            const { audience, jwks, issuer } = config;
+
+            if (!audience) {
                 throw new Error('Bad configuration');
             }
 
-            if (!JWKS_URI) {
-                //logger.debug(
-                //     `JWKS uri not configured in env vars.
-                //     Expected 'JWKS_URI' to be set.`
-                // );
+            if (!jwks) {
                 throw new Error('Bad configuration');
             }
 
-            if (!TOKEN_ISSUER) {
-                //logger.debug(
-                //     `Token issuer not configured in env vars.
-                //     Expected 'TOKEN_ISSUER' to be set.`
-                // );
+            if (!issuer) {
                 throw new Error('Bad configuration');
             }
 
             const token = event.authorizationToken.substring(7);
-            const client = new Authoriser(TOKEN_ISSUER, JWKS_URI, AUDIENCE);
+            const client = new Authoriser(issuer, jwks, audience);
 
             client
                 .authorize(token)

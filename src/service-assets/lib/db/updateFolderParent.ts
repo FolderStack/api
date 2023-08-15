@@ -19,8 +19,6 @@ function getParams(
     const _folder = fromJsonToFolderRecord(folder);
     _folder.org = org;
 
-    console.log(folder, _folder);
-
     return {
         TransactItems: [
             {

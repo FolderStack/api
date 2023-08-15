@@ -7,5 +7,7 @@ export * from './parseBody';
 export * from './s3';
 export * from './sqs/sqs';
 
+export * from './getPathParam';
+export * from './validateObject';
 export * from './withErrorWrapper';
 export * from './withOrgWrapper';
