@@ -6,6 +6,7 @@ import {
     Context,
 } from 'aws-lambda';
 import { getOrgFromEvent } from './getOrdId';
+import { logger } from './logger';
 
 type Organisation = Record<string, any>;
 
@@ -26,10 +27,13 @@ export function withOrgWrapper(
         callback: Callback
     ): Promise<APIGatewayProxyResult> {
         const org = await getOrgFromEvent(event);
+
         if (!org) {
+            logger.debug('Failed to get org, throwing Unauthorized.');
             throw new HttpUnauthorizedError();
         }
 
+        logger.debug('Got org', org);
         event.org = org;
 
         const result = await fn(event, context, callback);

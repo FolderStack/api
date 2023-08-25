@@ -5,3 +5,7 @@ getOrgConfig:
         method: GET
         path: /org/me
         cors: true
+        caching:
+          enabled: true
+        authorizer:
+          name: authoriser

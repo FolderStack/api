@@ -25,14 +25,7 @@ export async function createFileHandler(event: APIGatewayProxyEventWithOrg) {
     );
 
     return pipe(
-        createFile(
-            name,
-            file,
-            Number(fileSize),
-            fileType,
-            folderId,
-            event.org.id
-        ),
+        createFile(name, file, fileSize, fileType, folderId, event.org.id),
         response(Created)
     )();
 }

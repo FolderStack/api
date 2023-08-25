@@ -6,6 +6,10 @@ getFolderTree:
         method: GET
         path: /tree
         cors: true
+        caching:
+          enabled: true
+        authorizer:
+          name: authoriser
 
 getFolderContents:
   handler: ./src/service-assets/handlers/getFolderContents.handler
@@ -15,6 +19,12 @@ getFolderContents:
         method: GET
         path: /folders/{folderId}
         cors: true
+        caching:
+          enabled: true
+          cacheKeyParameters:
+            - name: request.path.folderId
+        authorizer:
+          name: authoriser
 
 # Admin Only
 updateTreeOrder:
@@ -24,6 +34,8 @@ updateTreeOrder:
         method: PATCH
         path: /tree
         cors: true
+        authorizer:
+          name: authoriser
 
 createFile:
   handler: ./src/service-assets/handlers/createFile.handler
@@ -32,6 +44,8 @@ createFile:
         method: POST
         path: /folders/{folderId}/files
         cors: true
+        authorizer:
+          name: authoriser
 
 deleteFiles:
   handler: ./src/service-assets/handlers/deleteFiles.handler
@@ -40,6 +54,8 @@ deleteFiles:
         method: DELETE
         path: /folders/{folderId}/files
         cors: true
+        authorizer:
+          name: authoriser
 
 createFolder:
   handler: ./src/service-assets/handlers/createFolder.handler
@@ -48,6 +64,8 @@ createFolder:
         method: POST
         path: /folders
         cors: true
+        authorizer:
+          name: authoriser
 
 updateFolder:
   handler: ./src/service-assets/handlers/updateFolder.handler
@@ -56,6 +74,8 @@ updateFolder:
         method: PATCH
         path: /folders/{folderId}
         cors: true
+        authorizer:
+          name: authoriser
 
 deleteFolder:
   handler: ./src/service-assets/handlers/deleteFolder.handler
@@ -64,6 +84,8 @@ deleteFolder:
         method: DELETE
         path: /folders/{folderId}
         cors: true
+        authorizer:
+          name: authoriser
 
 createPresignedUrls:
   handler: ./src/service-assets/handlers/createUploadUrls.handler
@@ -72,6 +94,8 @@ createPresignedUrls:
         method: POST
         path: /uploads
         cors: true
+        authorizer:
+          name: authoriser
 
 download:
   handler: ./src/service-assets/handlers/getZipFile.handler
@@ -80,3 +104,5 @@ download:
         method: POST
         path: /downloads
         cors: true
+        authorizer:
+          name: authoriser

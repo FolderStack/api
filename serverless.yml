@@ -14,6 +14,7 @@ plugins:
     - serverless-prune-plugin
     - serverless-esbuild
     - serverless-dynamodb-local
+    - serverless-api-gateway-caching
     - serverless-offline
 
 custom:
@@ -27,13 +28,15 @@ custom:
         staging: warn
         local: debug
     logLevel: ${self:custom.logLevels.${self:custom.currentStage}, 'info'}
+    apiGatewayCaching:
+        enabled: true
     domains:
         production: "api.folderstack.io"
         staging: "staging-api.folderstack.io"
         local: "localhost"
     customDomain:
         domainName: ${self:custom.domains.${self:custom.currentStage}}
-        basePath: "api/v1"
+        basePath: "v1"
         stage: ${self:custom.currentStage}
         certificateName: "*.folderstack.io"
         createRoute53Record: true
@@ -97,6 +100,7 @@ provider:
 
 resources:
     - ${file(./sls/resources/tables/assets.yaml)}
+    - ${file(./sls/resources/api/responses.yaml)}
     - ${file(./sls/outputs.yaml)}
 
 functions:

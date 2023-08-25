@@ -34,7 +34,6 @@ export class AWSPolicyGenerator {
             typeof context === 'object'
         ) {
             const ctx: Record<string, unknown> = (context as any) ?? {};
-            ctx.org = '';
             authResponse.context = ctx as any;
         }
 

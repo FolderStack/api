@@ -7969,6 +7969,7 @@ __metadata:
     node-fetch: ^3.3.1
     prettier: 2.8.1
     serverless: 3.26.0
+    serverless-api-gateway-caching: ^1.10.2
     serverless-domain-manager: ^7.0.4
     serverless-dynamodb-local: ^0.2.40
     serverless-esbuild: 1.34.0
@@ -10073,6 +10074,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lodash.get@npm:^4.4.2":
+  version: 4.4.2
+  resolution: "lodash.get@npm:4.4.2"
+  checksum: e403047ddb03181c9d0e92df9556570e2b67e0f0a930fcbbbd779370972368f5568e914f913e93f3b08f6d492abc71e14d4e9b7a18916c31fa04bd2306efe545
+  languageName: node
+  linkType: hard
+
+"lodash.isempty@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "lodash.isempty@npm:4.4.0"
+  checksum: a8118f23f7ed72a1dbd176bf27f297d1e71aa1926288449cb8f7cef99ba1bc7527eab52fe7899ab080fa1dc150aba6e4a6367bf49fa4e0b78da1ecc095f8d8c5
+  languageName: node
+  linkType: hard
+
 "lodash.isplainobject@npm:^4.0.6":
   version: 4.0.6
   resolution: "lodash.isplainobject@npm:4.0.6"
@@ -12096,6 +12111,16 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: 12d8ad952fa353b0995bf180cdac205a4068b759a140e5d3c608317098b3575ac2f1e09182206bf2eb26120e1c0ed8fb92c48c592f6099680de56bb071423ca3
+  languageName: node
+  linkType: hard
+
+"serverless-api-gateway-caching@npm:^1.10.2":
+  version: 1.10.2
+  resolution: "serverless-api-gateway-caching@npm:1.10.2"
+  dependencies:
+    lodash.get: ^4.4.2
+    lodash.isempty: ^4.4.0
+  checksum: ec844f65f6d3e0667822217e49e57b4cbd4982dd28d48ad6618b34fd08ccb6e8620797ae663f96f79f2b26d426c75a75e8197d7b827a3ebd83f470393bd75718
   languageName: node
   linkType: hard
 

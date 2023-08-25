@@ -1,39 +1,51 @@
 import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { HttpUnauthorizedError } from '@common/errors';
 import { config } from '@config';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import * as JWT from 'jsonwebtoken';
 import { dynamoDb } from './dynamodb';
 import { getOrgOAuthConfig } from './getOrgOAuthConfig';
+import { logger } from './logger';
 
 export async function getOrgFromEvent(event: APIGatewayProxyEvent) {
-    let obj: any = event.requestContext.authorizer;
-    let clientId: string | undefined = obj?.clientId;
-    let hostName: string | undefined = obj?.hostName;
-
+    let orgPK: string | undefined;
     if (config.isLocal) {
-        let token =
-            event.headers['Authorization'] ?? event.headers['authorization'];
-        token = String(token).split('Bearer ')?.[1] ?? null;
-
-        if (!token) {
-            throw new HttpUnauthorizedError();
+        logger.debug('getOrgFromEvent', 'isLocal');
+        const localInfo = event.headers['X-Test-Authorizer'];
+        try {
+            const orgId = JSON.parse(localInfo ?? '')?.orgId;
+            if (orgId && typeof orgId === 'string') {
+                orgPK = `OrgID#${orgId}`;
+            } else {
+                logger.debug(
+                    'Failed to extract orgId from X-Test-Authorizer header',
+                    { localInfo }
+                );
+                return null;
+            }
+        } catch (err) {
+            logger.debug('Failed to parse X-Test-Authorizer header');
+            return null;
         }
-        const data = JWT.decode(token) as JWT.JwtPayload;
-        clientId = data.aud?.toString();
-        hostName = event.headers['host'];
-    }
+    } else {
+        let obj: any = event.requestContext.authorizer;
+        let clientId: string = obj?.clientId ?? '';
 
-    const oauthConfig = await getOrgOAuthConfig(hostName ?? '', clientId ?? '');
-    if (!oauthConfig) return null;
+        logger.debug('getOrgFromEvent', {
+            clientId,
+            ctx: event.requestContext,
+        });
+
+        const oauthConfig = await getOrgOAuthConfig(clientId ?? '');
+        if (!oauthConfig) return null;
+        orgPK = oauthConfig.SK as unknown as string;
+    }
 
     const getOrg = new QueryCommand({
         TableName: config.tables.table,
         KeyConditionExpression: 'PK = :PK',
         FilterExpression: 'entityType = :entityType',
         ExpressionAttributeValues: marshall({
-            ':PK': oauthConfig.SK,
+            ':PK': orgPK,
             ':entityType': 'Organisation',
         }),
     });

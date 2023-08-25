@@ -3,16 +3,18 @@ import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { config } from '@config';
 import { dynamoDb } from './dynamodb';
 
-export async function getOrgOAuthConfig(hostName: string, clientId: string) {
+export async function getOrgOAuthConfig(clientId: string) {
     const getOAuthInfo = new QueryCommand({
         TableName: config.tables.table,
         KeyConditionExpression: 'PK = :PK',
-        FilterExpression: 'entityType = :entityType AND clientId = :clientId',
-        ExpressionAttributeValues: marshall({
-            ':PK': `ClientID#${hostName}`,
-            ':entityType': 'OAuthConfig',
-            ':clientId': clientId,
-        }),
+        FilterExpression: 'entityType = :entityType',
+        ExpressionAttributeValues: marshall(
+            {
+                ':PK': `ClientID#${clientId}`,
+                ':entityType': 'OAuthConfig',
+            },
+            { removeUndefinedValues: true }
+        ),
     });
 
     const configResult = await dynamoDb.send(getOAuthInfo);
