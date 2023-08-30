@@ -1,5 +1,5 @@
 import { PutItemCommand, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
-import { cleanAndMarshall, sendWriteCommand } from '@common/utils';
+import { cleanAndMarshall, logger, sendWriteCommand } from '@common/utils';
 import { config } from '@config';
 import { randomUUID } from 'crypto';
 import * as TE from 'fp-ts/TaskEither';
@@ -14,9 +14,11 @@ export function createFolder(
     parent: string | null,
     org: string
 ): TE.TaskEither<Error, IFolder> {
+    parent ??= 'ROOT'
+    
     const id = randomUUID();
     const record: IFolderRecord = {
-        PK: `Folder#${parent ?? 'ROOT'}`,
+        PK: `Folder#${parent}`,
         SK: `Folder#${id}`,
         entityType: 'Folder',
         name,
@@ -41,21 +43,21 @@ export function createFolder(
         Item: cleanAndMarshall(parentRecord),
     };
 
-    //logger.debug('createFolder Record:', record);
+    logger.debug('createFolder Record:', record);
 
     const params: PutItemCommandInput = {
         TableName: config.tables.table,
         Item: cleanAndMarshall(record),
     };
 
-    //logger.debug('createFolder params:', params);
+    logger.debug('createFolder params:', params);
 
     return pipe(
         new PutItemCommand(parentParams),
         sendWriteCommand,
         TE.chain(() => pipe(new PutItemCommand(params), sendWriteCommand)),
         TE.chain(() => {
-            if (parent) {
+            if (parent && parent !== 'ROOT') {
                 return updateFolderFileSize(parent, 0, org);
             } else {
                 return TE.right(null);

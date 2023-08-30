@@ -29,6 +29,7 @@
         "nanoid": "^4.0.2",
         "node-fetch": "^3.3.1",
         "stream": "^0.0.2",
+        "uuid": "^9.0.0",
         "winston": "^3.8.2",
         "zod": "^3.21.4"
     },
@@ -50,6 +51,7 @@
         "@types/jsonwebtoken": "^9",
         "@types/node": "18.11.9",
         "@types/serverless": "3.12.9",
+        "@types/uuid": "^9",
         "@typescript-eslint/eslint-plugin": "5.47.1",
         "@typescript-eslint/parser": "5.47.1",
         "babel-jest": "^29.5.0",

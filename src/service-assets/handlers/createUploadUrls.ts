@@ -29,7 +29,7 @@ async function createUploadUrlHandler(event: APIGatewayProxyEventWithOrg) {
             const id = randomUUID();
             const name = fileName.replace(/[^a-zA-Z0-9.]/gi, '_');
             const key = `uploads/${event.org.id}/${id}/${name}`;
-            const fileType = mime.lookup(name);
+            const fileType = (mime as any).getType(name);
 
             return pipe(
                 createPresignedPost(config.buckets.assets, key, fileType),

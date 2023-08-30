@@ -1,0 +1,83 @@
+Resources:
+  HandleJobFileUnzippingRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+        RoleName: "HandleJobFileUnzippingRole"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Service:
+                  - "lambda.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        Policies:
+          - PolicyName: "LambdaInvokePolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "lambda:InvokeFunction"
+                  Resource:
+                      Fn::Join:
+                        - ":"
+                        - 
+                          - "arn:aws:lambda"
+                          - "${self:provider.region}"
+                          - Ref: "AWS::AccountId"
+                          - "function"
+                          - "${self:service}-${self:custom.currentStage}-createFolderInternal"
+                - Effect: "Allow"
+                  Action:
+                    - "lambda:InvokeFunction"
+                  Resource:
+                      Fn::Join:
+                        - ":"
+                        - 
+                          - "arn:aws:lambda"
+                          - "${self:provider.region}"
+                          - Ref: "AWS::AccountId"
+                          - "function"
+                          - "${self:service}-${self:custom.currentStage}-createFileInternal"
+                - Effect: "Allow"
+                  Action:
+                    - "lambda:InvokeFunction"
+                  Resource:
+                      Fn::Join:
+                        - ":"
+                        - 
+                          - "arn:aws:lambda"
+                          - "${self:provider.region}"
+                          - Ref: "AWS::AccountId"
+                          - "function"
+                          - "${self:service}-${self:custom.currentStage}-updateFileInternal"
+                - Effect: "Allow"
+                  Action:
+                    - "s3:GetObject"
+                    - "s3:PutObject"
+                    - "s3:DeleteObject"
+                  Resource: "arn:aws:s3:::${self:custom.bucket}/*"
+                - Effect: "Allow"
+                  Action:
+                    - "logs:CreateLogGroup"
+                    - "logs:CreateLogStream"
+                    - "logs:PutLogEvents"
+                  Resource: "*"
+                - Effect: "Allow"
+                  Action:
+                    - "dynamodb:GetItem"
+                    - "dynamodb:UpdateItem"
+                    - "dynamodb:DeleteItem"
+                    - "dynamodb:Query"
+                  Resource: 
+                    Fn::Join:
+                      - ":"
+                      - 
+                        - "arn:aws:dynamodb"
+                        - "${self:provider.region}"
+                        - Ref: "AWS::AccountId"
+                        - "table"
+                        - "${self:custom.table.${self:custom.currentStage}}"
+

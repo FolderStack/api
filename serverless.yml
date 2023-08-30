@@ -86,11 +86,13 @@ provider:
     region: ap-southeast-2
     memorySize: 128
     environment:
+        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '0'
         ENV: ${self:custom.currentStage}
         LOG_LEVEL: ${self:custom.logLevel, 'info'}
         TABLE_NAME: ${self:custom.table.${self:custom.currentStage}}
         BUCKET_NAME: ${self:custom.bucket}
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '0'
+        STAGE: ${self:custom.currentStage}
+        SERVICE_NAME: ${self:service}
     iamRoleStatements:
         - Effect: "Allow"
           Action:
@@ -99,6 +101,7 @@ provider:
           Resource: "arn:aws:s3:::${self:custom.bucket}/*"
 
 resources:
+    - ${file(./sls/resources/roles/jobs.yaml)}
     - ${file(./sls/resources/tables/assets.yaml)}
     - ${file(./sls/resources/api/responses.yaml)}
     - ${file(./sls/outputs.yaml)}

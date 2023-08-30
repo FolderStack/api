@@ -1,14 +1,18 @@
 import { InvokeCommand } from '@aws-sdk/client-lambda';
-import { lambda } from "@common/utils";
+import { lambda, logger } from "@common/utils";
 
 export async function createFolder(name: string, parent: string | null, orgId: string) {
     const result = await lambda.send(new InvokeCommand({
         FunctionName: `${process.env.SERVICE_NAME}-${process.env.STAGE}-createFolderInternal`,
         Payload: JSON.stringify({
             name,
-            parent,
+            parent: parent ?? 'ROOT',
             orgId
         })
     }))
-    return JSON.parse(result.Payload?.transformToString() ?? '')
+    
+    const body = JSON.parse(JSON.parse(result.Payload?.transformToString() ?? '')?.body ?? '');
+    logger.debug('createFolder result:', { result: JSON.parse(result.Payload?.transformToString() ?? '') });
+    logger.debug('createFolder body:', { body })
+    return body?.id ? String(body.id) : null;
 }

@@ -11,18 +11,14 @@ export async function createSubJob(
     status: string,
     data: { branch: string } & Record<string, any>
 ) {
-    const subJob = {
-        ...data,
-        orgId,
-        status,
-    };
-
     const createOne = new PutItemCommand({
         TableName: config.tables.table,
         Item: marshall({
             PK: `Job#${jobId}`,
             SK: `Branch#${data.branch}`,
-            ...subJob
+            entityType: 'Job',
+            status,
+            org: orgId
         })
     });
     

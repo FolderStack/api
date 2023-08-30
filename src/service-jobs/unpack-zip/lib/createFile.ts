@@ -1,5 +1,5 @@
 import { InvokeCommand } from '@aws-sdk/client-lambda';
-import { lambda } from "@common/utils";
+import { lambda, logger } from "@common/utils";
 
 export async function createFile(
     name: string,
@@ -20,5 +20,8 @@ export async function createFile(
             orgId
         })
     }))
-    return JSON.parse(result.Payload?.transformToString() ?? '')
+    const body = JSON.parse(JSON.parse(result.Payload?.transformToString() ?? '')?.body ?? '');
+    logger.debug('createFile result:', { result: JSON.parse(result.Payload?.transformToString() ?? '') });
+    logger.debug('createFile body:', { body })
+    return body?.id ? String(body.id) : null;
 }

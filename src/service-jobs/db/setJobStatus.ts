@@ -19,7 +19,7 @@ export async function setJobStatus(
     )();
 
     if (job) {
-        return updateStatus(jobId, orgId, status);
+        return updateStatus(jobId, status, data.branch, data);
     } else {
         return createSubJob(jobId, orgId, status, data);
     }

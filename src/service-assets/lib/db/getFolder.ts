@@ -6,7 +6,7 @@ import {
 import { QueryCommandInput } from '@aws-sdk/lib-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { HttpForbiddenError, HttpNotFoundError } from '@common/errors';
-import { dynamoDb, sendReadCommand } from '@common/utils';
+import { dynamoDb, logger, sendReadCommand } from '@common/utils';
 import { config } from '@config';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
@@ -17,23 +17,6 @@ export function getFolder(
     folderId: string,
     org: string
 ): TE.TaskEither<Error, IFolder> {
-    // if (folderId.toLowerCase() === 'root') {
-    //     return pipe(
-    //         new QueryCommand({
-    //             TableName: config.tables.table,
-    //             KeyConditionExpression: `PK = :folderId`,
-    //             FilterExpression: `entityType = :entityType AND org = :orgId`,
-    //             ExpressionAttributeValues: marshall({
-    //                 ':folderId': `Folder#${folderId}`,
-    //                 ':orgId': org,
-    //                 ':entityType': 'Folder',
-    //             }),
-    //         }),
-    //         sendReadCommand<IFolderRecord>,
-    //         TE.map((results) => results.map(fromFolderRecordToJson))
-    //     );
-    // }
-
     const findParentParams: QueryCommandInput = {
         TableName: config.tables.table,
         KeyConditionExpression: `PK = :folderId`,
@@ -49,7 +32,7 @@ export function getFolder(
         new QueryCommand(findParentParams),
         sendReadCommand<IFolderParentRecord>,
         TE.chain(([res]) => {
-            console.log(res, findParentParams);
+            logger.debug('getFolder', { res, findParentParams });
             if (!res) {
                 return TE.left(new HttpNotFoundError());
             }

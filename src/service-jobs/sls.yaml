@@ -26,11 +26,13 @@ createZipUploadUrl:
 
 handleJobFile:
   handler: ./src/service-jobs/unpack-zip/handlers/handleJobFile.handler
+  role: HandleJobFileUnzippingRole
   events:
     - s3:
         bucket: ${self:custom.bucket}
         event: s3:ObjectCreated:*
         rules:
           - prefix: jobs/
+  
 
 

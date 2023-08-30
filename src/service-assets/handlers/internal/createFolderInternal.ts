@@ -1,5 +1,6 @@
 import { Ok, response } from '@common/responses';
 import {
+    logger,
     validate
 } from '@common/utils';
 import { pipe } from 'fp-ts/function';
@@ -24,6 +25,7 @@ async function createFolderInternalHandler(event: CreateFolderInternalEvent) {
         })
     );
 
+    logger.debug('createFolderInternalHandler', { name, image, parent, orgId });
     return pipe(createFolder(name, image ?? null, parent ?? null, orgId), response(Ok))();
 }
 

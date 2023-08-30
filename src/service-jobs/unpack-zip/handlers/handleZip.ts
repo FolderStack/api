@@ -16,6 +16,11 @@ export async function handleZip(event: S3Event) {
     const jobId = getJobId(key);
     const name = getName(key);
 
+    if (key.includes('/processed/')) {
+        logger.debug('Skipping file, in processed folder...');
+        return;
+    }
+
     const job = new Job(jobId, orgId);
 
     try {
@@ -36,23 +41,58 @@ export async function handleZip(event: S3Event) {
         const s3Key = `jobs/${orgId}/${jobId}/processing`
         logger.debug('S3 key: ' + s3Key);
 
-        let [parent = null, folderName = null] = name.split('_');
-        logger.debug('Parsed name', { parent, folderName });
+        let [parent = null, folderName = null] = name.split(/_(.*)/s);
         if (parent && !folderName) {
             folderName = parent;
-            parent = null;
+            parent = 'ROOT';
         }
+        logger.debug('Parsed name', { parent, folderName });
 
         if (!folderName) {
             logger.debug("Couldn't get folder's name.")
             throw new Error("Couldn't get folder's name.")
         }
 
+        folderName = folderName.replace('.zip', '');
         logger.debug('Creating folder', { folderName, parent, orgId });
         const folderId = await createFolder(folderName, parent, orgId);
 
+        if (!folderId) {
+            logger.debug('Failed to get folderId from creating folder');
+            throw new Error('Failed to get folderId from creating folder');
+        }
+        logger.debug('FolderID result', { folderId });
+
         await job.processing();
+
+        const ignoredFiles = [
+            /^._/,
+            /^\.DS_Store$/,
+            /^\.AppleDouble/,
+            /^\.Trashes$/,
+            /^\.Spotlight-V100$/,
+            /^\.fseventsd$/,
+            /^Thumbs.db$/,
+            /^desktop.ini$/,
+            /^\$RECYCLE.BIN\//,
+            /^\.Trash-/,
+            /^lost\+found\//,
+            /^\.git\//,
+            /^\.svn\//,
+            /^\.hg\//,
+            /^\.lock$/,
+            /^~\$/
+        ];
+
+        logger.debug('Iterating through zip entries...')
         for (const entry of zipEntries) {
+            logger.debug('Entry name: ' + entry.name);
+            logger.debug('Entry path: ' + entry.entryName);
+            if (ignoredFiles.some(pattern => pattern.test(entry.name))) {
+                logger.debug('File is being ignored: ' + entry.entryName);
+                continue;
+            }
+
             if (entry.isDirectory) {
                 logger.debug('Entry is a directory...');
 
@@ -87,7 +127,7 @@ export async function handleZip(event: S3Event) {
                 // Upload the file to s3 as a file and process in the `createFileFromZipSource` lambda.
                 const fileName = `${folderId}_${entry.name}`;
 
-                logger.debug('Sending zip to s3', { fileName })
+                logger.debug('Sending file to s3', { fileName })
                 await uploadToS3(bucket, `${s3Key}/_files/${fileName}`, entry.getData());
             }
         }
