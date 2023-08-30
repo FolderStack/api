@@ -1,6 +1,7 @@
 import { Ok, response } from '@common/responses';
 import {
     APIGatewayProxyEventWithOrg,
+    createPresignedPost,
     getParsedBody,
     validate,
     withErrorWrapper,
@@ -13,7 +14,6 @@ import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
 import mime from 'mime';
 import { object, string } from 'zod';
-import { createPresignedPost } from '../lib/createPresignedUrl';
 
 async function createUploadUrlHandler(event: APIGatewayProxyEventWithOrg) {
     const { fileNames } = validate(
@@ -29,7 +29,7 @@ async function createUploadUrlHandler(event: APIGatewayProxyEventWithOrg) {
             const id = randomUUID();
             const name = fileName.replace(/[^a-zA-Z0-9.]/gi, '_');
             const key = `uploads/${event.org.id}/${id}/${name}`;
-            const fileType = mime.getType(name);
+            const fileType = mime.lookup(name);
 
             return pipe(
                 createPresignedPost(config.buckets.assets, key, fileType),

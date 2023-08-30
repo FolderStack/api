@@ -1,12 +1,11 @@
 import { HttpError, HttpInternalServerError } from '@common/errors';
 import {
-    APIGatewayProxyEvent,
     APIGatewayProxyResult,
     Callback,
-    Context,
+    Context
 } from 'aws-lambda';
 
-export function withErrorWrapper<T extends APIGatewayProxyEvent>(
+export function withErrorWrapper<T>(
     fn: (
         event: T,
         context: Context,

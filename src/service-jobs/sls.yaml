@@ -1,7 +1,36 @@
-createJob:
-
-
 pollJob:
+  handler: ./src/service-jobs/handlers/jobStatus.handler
+  timeout: 30
+  events:
+    - http:
+        method: GET
+        path: /jobs/{jobId}
+        cors: true
+        caching:
+          enabled: false
+        authorizer:
+          name: authoriser
+
+createZipUploadUrl:
+  handler: ./src/service-jobs/handlers/createZipUploadUrl.handler
+  timeout: 30
+  events:
+    - http:
+        method: POST
+        path: /jobs/upload-zip
+        cors: true
+        caching:
+          enabled: false
+        authorizer:
+          name: authoriser
+
+handleJobFile:
+  handler: ./src/service-jobs/unpack-zip/handlers/handleJobFile.handler
+  events:
+    - s3:
+        bucket: ${self:custom.bucket}
+        event: s3:ObjectCreated:*
+        rules:
+          - prefix: jobs/
 
 
-enqueueJob:

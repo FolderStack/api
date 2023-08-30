@@ -1,8 +1,8 @@
+import { createPresignedGet } from '@common/utils';
 import { config } from '@config';
 import { Archiver } from 'archiver';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
-import { createPresignedGet } from '../createPresignedUrl';
 import { uploadStreamedArchive } from '../uploadStreamedArchive';
 import { archiveFiles } from './archiveFiles';
 import { archiveFolder } from './archiveFolder';

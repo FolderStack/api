@@ -1,5 +1,6 @@
 # Public
 getFolderTree:
+  # name: ${self:service}-assets-getFolderTree-${self:custom.currentStage}
   handler: ./src/service-assets/handlers/getFolderTree.handler
   events:
     - http:
@@ -106,3 +107,13 @@ download:
         cors: true
         authorizer:
           name: authoriser
+
+# Internal
+createFolderInternal:
+  handler: ./src/service-assets/handlers/internal/createFolderInternal.handler
+  
+createFileInternal:
+  handler: ./src/service-assets/handlers/internal/createFileInternal.handler
+    
+updateFileInternal:
+  handler: ./src/service-assets/handlers/internal/updateFileInternal.handler

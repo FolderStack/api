@@ -108,3 +108,4 @@ functions:
     - ${file(./src/service-org/sls.yaml)}
     - ${file(./src/service-assets/sls.yaml)}
     - ${file(./src/service-thumbnails/sls.yaml)}
+    - ${file(./src/service-jobs/sls.yaml)}

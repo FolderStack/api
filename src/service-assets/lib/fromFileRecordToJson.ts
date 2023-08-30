@@ -1,4 +1,4 @@
-import { createPresignedGetAsync } from './createPresignedUrl';
+import { createPresignedGetAsync } from '@common/utils';
 import { IFile, IFileRecord } from './type';
 
 export function fromFileRecordToJson(
