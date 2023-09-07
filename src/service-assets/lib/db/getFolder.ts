@@ -28,11 +28,13 @@ export function getFolder(
         }),
     };
 
+    logger.debug('getFolder', { findParentParams})
+
     return pipe(
         new QueryCommand(findParentParams),
         sendReadCommand<IFolderParentRecord>,
         TE.chain(([res]) => {
-            logger.debug('getFolder', { res, findParentParams });
+            logger.debug('getFolder', { res });
             if (!res) {
                 return TE.left(new HttpNotFoundError());
             }
@@ -53,6 +55,7 @@ export function getFolder(
         }),
         TE.chain((result) => {
             const item = unmarshall(result.Item ?? {});
+            logger.debug('getFolder', { item });
 
             if (!item || Object.keys(item ?? {}).length === 0) {
                 return TE.left(new HttpNotFoundError());
@@ -65,6 +68,7 @@ export function getFolder(
             return TE.right(item as IFolderRecord);
         }),
         TE.map((result) => {
+            logger.debug('getFolder', { result })
             return fromFolderRecordToJson(result);
         })
     );

@@ -27,12 +27,13 @@ async function updateFileInternalHandler(event: UpdateFileInternalEvent) {
             file: string().optional(),
             fileSize: number().optional(),
             fileType: string().optional(),
-            orgId: string()
+            orgId: string(),
+            asset: string().optional()
         })
     );
 
     return pipe(
-        updateFile(fileId, folderId, changes, orgId),
+        updateFile(fileId, folderId, changes),
         response(Ok)
     )();
 }

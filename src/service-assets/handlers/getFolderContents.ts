@@ -2,6 +2,7 @@ import { Ok, response } from '@common/responses';
 import {
     APIGatewayProxyEventWithOrg,
     getPathParam,
+    logger,
     withErrorWrapper,
     withOrgWrapper,
 } from '@common/utils';
@@ -21,6 +22,17 @@ async function getFolderContentsHandler(event: APIGatewayProxyEventWithOrg) {
     const page = Number(getPathParam('page', event, true) ?? 1);
     const pageSize = Number(getPathParam('pageSize', event, true) ?? 20);
 
+    logger.debug('getFolderContentsHandler', {
+        folderId,
+        filterFrom,
+        filterTo,
+        filterFileTypes,
+        sortBy,
+        sortDir,
+        page,
+        pageSize
+    })
+
     return pipe(
         getContentsOfFolder({
             folderId,
@@ -28,7 +40,7 @@ async function getFolderContentsHandler(event: APIGatewayProxyEventWithOrg) {
             filter: {
                 from: filterFrom,
                 to: filterTo,
-                fileTypes: filterFileTypes?.split(','),
+                fileTypes: filterFileTypes?.split?.(','),
             },
             sort: {
                 by: sortBy,

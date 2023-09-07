@@ -49,10 +49,16 @@ function getItemsInFolder(
         new QueryCommand(query),
         sendReadCommand<IFolderRecord | IFileRecord>,
         TE.chain((items) =>
-            TE.traverseArray((item: IFileRecord | IFolderRecord) => {
+            TE.traverseArray((item: IFolderRecord | IFileRecord) => {
                 if (item.org !== orgId) return TE.right(null);
                 if (item.entityType === 'File') {
-                    return fromFileRecord(item);
+                    return pipe(
+                        TE.tryCatch(
+                            () => fromFileRecordToJson(item),
+                            err => err as Error
+                        ),
+                        TE.map(res => [res])
+                    );
                 }
                 if (item.entityType === 'Folder') {
                     return fromFolderRecord(item, relativePath, orgId);

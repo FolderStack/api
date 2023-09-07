@@ -5,6 +5,7 @@ import { handleZip } from "./handleZip";
 
 export async function handler(event: S3Event) {
     logger.debug('Entered handleJobFile handler...')
+    console.log(event)
     const key = event.Records[0].s3.object.key;
 
     logger.debug('Got key: ' + key);

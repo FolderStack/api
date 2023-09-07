@@ -1,7 +1,7 @@
 authoriser:
   handler: ./src/service-authoriser/handlers/authorise.handler
   timeout: 30
-  memorySize: 512
+  memorySize: 1024
   environment:
       AUDIENCE: ${ssm:/folderstack/${self:custom.currentStage}/AUDIENCE, null}
       JWKS_URI: ${ssm:/folderstack/${self:custom.currentStage}/JWKS_URI, null}

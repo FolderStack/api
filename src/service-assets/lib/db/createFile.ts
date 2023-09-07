@@ -46,6 +46,11 @@ export function createFile(
         new PutItemCommand(params),
         sendWriteCommand,
         TE.chain(() => updateFolderFileSize(folder, fileSize, org)),
-        TE.map(() => fromFileRecordToJson(record))
+        TE.chain(() => 
+            TE.tryCatch(
+                () => fromFileRecordToJson(record),
+                (err) => err as Error
+            )
+        ),
     );
 }

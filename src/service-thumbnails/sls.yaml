@@ -1,5 +1,6 @@
 createThumbnail:
     handler: ./src/service-thumbnails/handlers/createThumbnail.handler
+    memorySize: 512
     timeout: 30
     events:
       - s3: 

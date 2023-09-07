@@ -1,35 +1,31 @@
 import { createPresignedGetAsync } from '@common/utils';
 import { IFile, IFileRecord } from './type';
 
-export function fromFileRecordToJson(
-    record: IFileRecord,
-    getAssetUrl?: false
-): IFile;
-export function fromFileRecordToJson(
-    record: IFileRecord,
-    getAssetUrl: true
-): Promise<IFile>;
-export function fromFileRecordToJson(
+export async function fromFileRecordToJson(
     record: IFileRecord,
     getAssetUrl?: boolean
-): Promise<IFile> | IFile {
+): Promise<IFile> {
     if (getAssetUrl) {
-        const bucket = record.asset.split('s3://')[1].split('/')[0];
-        const key = record.asset.split(bucket)[1];
-        return Promise.all([
-            createPresignedGetAsync(bucket, key),
-            createPresignedGetAsync(bucket, key + '__fsthumb.png'),
-        ]).then(([url, thumbnail]) => {
-            const file = fromFileRecordToJson(record);
+        const bucket = record.asset.split?.('s3://')?.[1]?.split?.('/')?.[0];
+        const key = record.asset?.split?.(bucket)?.[1];
+        if (bucket && key) {
+            return Promise.all([
+                createPresignedGetAsync(bucket, key),
+                createPresignedGetAsync(bucket, key + '__fsthumb.png'),
+            ]).then(async ([url, thumbnail]) => {
+                const file = await fromFileRecordToJson(record);
 
-            if (url) file.asset = url;
-            if (thumbnail) file.thumbnail = thumbnail;
+                if (url) file.asset = url;
+                if (thumbnail) file.thumbnail = thumbnail;
 
-            return file;
-        });
+                return file;
+            });
+        } else {
+            record.asset = '';
+        }
     }
 
-    return {
+    return Promise.resolve({
         id: record.SK.split('#')[1],
         parent: record.PK.split('#')[1],
         name: record.name,
@@ -39,5 +35,5 @@ export function fromFileRecordToJson(
         createdAt: new Date(record.createdAt),
         updatedAt: new Date(record.updatedAt),
         type: 'file',
-    };
+    });
 }

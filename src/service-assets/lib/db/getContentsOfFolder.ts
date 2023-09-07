@@ -2,7 +2,7 @@ import { QueryCommand } from '@aws-sdk/client-dynamodb';
 import { QueryCommandInput } from '@aws-sdk/lib-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
 import { HttpNotFoundError } from '@common/errors';
-import { sendReadCommand } from '@common/utils';
+import { logger, sendReadCommand } from '@common/utils';
 import { config } from '@config';
 import * as O from 'fp-ts/Option';
 import * as TE from 'fp-ts/TaskEither';
@@ -86,9 +86,12 @@ export function getContentsOfFolder(
         ScanIndexForward: params.sort.order === 'asc',
     };
 
+    logger.debug('getContentsOfFolder', { query });
+
     return pipe(
         getFolder(params.folderId, params.orgId),
         TE.chain((folder) => {
+            logger.debug('folder', { folder });
             if (!folder) {
                 return TE.left(new HttpNotFoundError());
             }

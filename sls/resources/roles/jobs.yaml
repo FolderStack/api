@@ -2,7 +2,7 @@ Resources:
   HandleJobFileUnzippingRole:
     Type: "AWS::IAM::Role"
     Properties:
-        RoleName: "HandleJobFileUnzippingRole"
+        RoleName: "${self:service}-HandleJobFileUnzippingRole-${self:custom.currentStage}"
         AssumeRolePolicyDocument:
           Version: "2012-10-17"
           Statement:
@@ -61,23 +61,22 @@ Resources:
                   Resource: "arn:aws:s3:::${self:custom.bucket}/*"
                 - Effect: "Allow"
                   Action:
+                    - "ec2:CreateNetworkInterface"
+                    - "ec2:DescribeNetworkInterfaces"
+                    - "ec2:DeleteNetworkInterface"
+                  Resource: "*"
+                - Effect: "Allow"
+                  Action:
+                    - "dax:*"
+                  Resource: "*"
+                - Effect: "Allow"
+                  Action:
                     - "logs:CreateLogGroup"
                     - "logs:CreateLogStream"
                     - "logs:PutLogEvents"
                   Resource: "*"
                 - Effect: "Allow"
                   Action:
-                    - "dynamodb:GetItem"
-                    - "dynamodb:UpdateItem"
-                    - "dynamodb:DeleteItem"
-                    - "dynamodb:Query"
-                  Resource: 
-                    Fn::Join:
-                      - ":"
-                      - 
-                        - "arn:aws:dynamodb"
-                        - "${self:provider.region}"
-                        - Ref: "AWS::AccountId"
-                        - "table"
-                        - "${self:custom.table.${self:custom.currentStage}}"
+                    - "dynamodb:*"
+                  Resource: "*"
 

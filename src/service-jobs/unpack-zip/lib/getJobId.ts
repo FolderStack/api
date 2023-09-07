@@ -11,5 +11,5 @@ export function getJobId(key: string) {
     const jobId = segments[2];
     
     logger.debug(`Extracted Job Id: ${jobId}`);
-    return jobId;
+    return decodeURIComponent(jobId);
 }

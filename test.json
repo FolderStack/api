@@ -1,0 +1,14 @@
+{
+    "Records": [
+        {
+            "s3": {
+                "object": {
+                    "key": "jobs/test/123/testfile.zip"
+                },
+                "bucket": {
+                    "name": "test-bucket"
+                }
+            }
+        }
+    ]
+}

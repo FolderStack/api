@@ -1,3 +1,7 @@
+import { DeleteItemCommand } from '@aws-sdk/client-dynamodb';
+import { marshall } from '@aws-sdk/util-dynamodb';
+import { dynamoDb } from '@common/utils';
+import { config } from '@config';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
 import { createSubJob } from './createSubJob';
@@ -17,6 +21,17 @@ export async function setJobStatus(
             (res) => () => Promise.resolve(res)
         )
     )();
+
+    if (status === 'SUCCESS' && job) {
+        await dynamoDb.send(new DeleteItemCommand({
+            TableName: config.tables.table,
+            Key: marshall({
+                PK: `Job#${jobId}`,
+                SK: `Branch#${data.branch}`
+            })
+        }))
+        return;
+    }
 
     if (job) {
         return updateStatus(jobId, status, data.branch, data);

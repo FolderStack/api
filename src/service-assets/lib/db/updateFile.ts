@@ -27,21 +27,18 @@ export function updateFile(
     fileId: string,
     folderId: string,
     changes: Partial<IFileRecord>,
-    org: string,
     transact?: undefined | false
 ): TE.TaskEither<Error, void>;
 export function updateFile(
     fileId: string,
     folderId: string,
     changes: Partial<IFileRecord>,
-    org: string,
     transact: true
 ): TE.TaskEither<Error, UpdateTransactionItem[]>;
 export function updateFile(
     fileId: string,
     folderId: string,
     changes: Partial<IFileRecord>,
-    org: string,
     transact?: boolean
 ): TE.TaskEither<Error, UpdateTransactionItem[] | void> {
     delete changes.PK;

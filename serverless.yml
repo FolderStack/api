@@ -30,6 +30,7 @@ custom:
     logLevel: ${self:custom.logLevels.${self:custom.currentStage}, 'info'}
     apiGatewayCaching:
         enabled: true
+        ttlInSeconds: 60
     domains:
         production: "api.folderstack.io"
         staging: "staging-api.folderstack.io"
@@ -42,10 +43,10 @@ custom:
         createRoute53Record: true
     esbuild:
         bundle: true
-        minify: true
+        minify: false
         target: node16
         packager: yarn
-        sourcemap: false
+        sourcemap: true
         sourcesContent: false
         external: ['aws-sdk']
     serverless-offline:
@@ -93,12 +94,28 @@ provider:
         BUCKET_NAME: ${self:custom.bucket}
         STAGE: ${self:custom.currentStage}
         SERVICE_NAME: ${self:service}
+        DAX_ENDPOINT: "daxs://folderstack-prod.sa2tye.dax-clusters.ap-southeast-2.amazonaws.com:9111"
     iamRoleStatements:
         - Effect: "Allow"
           Action:
             - "s3:GetObject"
             - "s3:PutObject"
           Resource: "arn:aws:s3:::${self:custom.bucket}/*"
+        - Effect: "Allow"
+          Action:
+            - "dynamodb:*"
+          Resource: "*"
+        - Effect: "Allow"
+          Action:
+            - "ec2:CreateNetworkInterface"
+            - "ec2:DescribeNetworkInterfaces"
+            - "ec2:DeleteNetworkInterface"
+          Resource: "*"
+        - Effect: "Allow"
+          Action:
+            - "dax:*"
+          Resource: "*"
+
 
 resources:
     - ${file(./sls/resources/roles/jobs.yaml)}

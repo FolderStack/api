@@ -1,7 +1,7 @@
 # Public
 getFolderTree:
-  # name: ${self:service}-assets-getFolderTree-${self:custom.currentStage}
   handler: ./src/service-assets/handlers/getFolderTree.handler
+  memorySize: 2048
   events:
     - http:
         method: GET
@@ -15,6 +15,7 @@ getFolderTree:
 getFolderContents:
   handler: ./src/service-assets/handlers/getFolderContents.handler
   timeout: 30
+  memorySize: 1024
   events:
     - http:
         method: GET
@@ -30,6 +31,7 @@ getFolderContents:
 # Admin Only
 updateTreeOrder:
   handler: ./src/service-assets/handlers/updateTreeOrder.handler
+  memorySize: 256
   events:
     - http:
         method: PATCH
@@ -40,6 +42,7 @@ updateTreeOrder:
 
 createFile:
   handler: ./src/service-assets/handlers/createFile.handler
+  memorySize: 256
   events:
     - http:
         method: POST
@@ -50,6 +53,7 @@ createFile:
 
 deleteFiles:
   handler: ./src/service-assets/handlers/deleteFiles.handler
+  memorySize: 256
   events:
     - http:
         method: DELETE
@@ -60,6 +64,7 @@ deleteFiles:
 
 createFolder:
   handler: ./src/service-assets/handlers/createFolder.handler
+  memorySize: 256
   events:
     - http:
         method: POST
@@ -70,6 +75,7 @@ createFolder:
 
 updateFolder:
   handler: ./src/service-assets/handlers/updateFolder.handler
+  memorySize: 256
   events:
     - http:
         method: PATCH
@@ -80,6 +86,7 @@ updateFolder:
 
 deleteFolder:
   handler: ./src/service-assets/handlers/deleteFolder.handler
+  memorySize: 256
   events:
     - http:
         method: DELETE
@@ -90,6 +97,7 @@ deleteFolder:
 
 createPresignedUrls:
   handler: ./src/service-assets/handlers/createUploadUrls.handler
+  memorySize: 1024
   events:
     - http:
         method: POST
@@ -100,6 +108,7 @@ createPresignedUrls:
 
 download:
   handler: ./src/service-assets/handlers/getZipFile.handler
+  memorySize: 2048
   events:
     - http:
         method: POST
@@ -111,9 +120,12 @@ download:
 # Internal
 createFolderInternal:
   handler: ./src/service-assets/handlers/internal/createFolderInternal.handler
+  memorySize: 512
   
 createFileInternal:
   handler: ./src/service-assets/handlers/internal/createFileInternal.handler
+  memorySize: 512
     
 updateFileInternal:
   handler: ./src/service-assets/handlers/internal/updateFileInternal.handler
+  memorySize: 512

@@ -13,6 +13,7 @@ pollJob:
 
 createZipUploadUrl:
   handler: ./src/service-jobs/handlers/createZipUploadUrl.handler
+  memorySize: 512
   timeout: 30
   events:
     - http:
@@ -26,6 +27,7 @@ createZipUploadUrl:
 
 handleJobFile:
   handler: ./src/service-jobs/unpack-zip/handlers/handleJobFile.handler
+  memorySize: 512
   role: HandleJobFileUnzippingRole
   events:
     - s3:

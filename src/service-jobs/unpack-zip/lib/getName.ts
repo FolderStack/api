@@ -7,5 +7,5 @@ export function getName(key: string) {
     const name = segments[segments.length - 1];
     
     logger.debug(`Extracted Name: ${name}`);
-    return name;
+    return decodeURIComponent(name);
 }

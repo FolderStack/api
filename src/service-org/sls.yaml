@@ -1,5 +1,6 @@
 getOrgConfig:
   handler: ./src/service-org/handlers/getConfig.handler
+  memorySize: 1024
   events:
     - http:
         method: GET

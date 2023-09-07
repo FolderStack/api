@@ -13,8 +13,12 @@ import { updateFileS3Key } from '../lib/updateFileS3Key';
 
 export async function handleUnzippedFile(event: S3Event) {
     const bucket = event.Records[0].s3.bucket.name;
-    const key = event.Records[0].s3.object.key;
+    let key = event.Records[0].s3.object.key;
     const region = event.Records[0].awsRegion;
+
+    if (key.includes('+')) {
+        key = key.replace(/\+/g, ' ');
+    }
 
     const orgId = getOrgId(key);
     const jobId = getJobId(key);
@@ -129,6 +133,8 @@ export async function handleUnzippedFile(event: S3Event) {
             ),
         ]);
 
+        await job.success()
+        
         // Delete the original
         logger.debug('Deleting old object');
         await s3.send(
@@ -137,8 +143,6 @@ export async function handleUnzippedFile(event: S3Event) {
                 Key: key,
             })
         );
-        
-        job.success()
     } catch (error: any) {
         logger.error({ error, event, message: 'Error processing file' });
         await job.fail(error?.message ?? `Failed to process file.`);

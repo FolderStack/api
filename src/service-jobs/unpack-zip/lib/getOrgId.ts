@@ -11,5 +11,5 @@ export function getOrgId(key: string) {
     const orgId = segments[1];
     logger.debug(`Extracted Org ID: ${orgId}`);
     
-    return orgId;
+    return decodeURIComponent(orgId);
 }
