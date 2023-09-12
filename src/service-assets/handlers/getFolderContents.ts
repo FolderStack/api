@@ -2,6 +2,7 @@ import { Ok, response } from '@common/responses';
 import {
     APIGatewayProxyEventWithOrg,
     getPathParam,
+    getQueryParam,
     logger,
     withErrorWrapper,
     withOrgWrapper,
@@ -12,15 +13,15 @@ import { getContentsOfFolder } from '../lib/db';
 async function getFolderContentsHandler(event: APIGatewayProxyEventWithOrg) {
     const folderId = getPathParam('folderId', event);
 
-    const filterFrom = getPathParam('from', event, true);
-    const filterTo = getPathParam('to', event, true);
-    const filterFileTypes = getPathParam('fileTypes', event, true);
+    const filterFrom = getQueryParam('from', event, true);
+    const filterTo = getQueryParam('to', event, true);
+    const filterFileTypes = getQueryParam('fileTypes', event, true);
 
-    const sortBy = getPathParam('sortBy', event, true) ?? 'name';
-    const sortDir = getPathParam('sort', event, true) ?? 'asc';
+    const sortBy = getQueryParam('sortBy', event, true) ?? 'name';
+    const sortDir = getQueryParam('sort', event, true) ?? 'asc';
 
-    const page = Number(getPathParam('page', event, true) ?? 1);
-    const pageSize = Number(getPathParam('pageSize', event, true) ?? 20);
+    const page = Number(getQueryParam('page', event, true) ?? 1);
+    const pageSize = Number(getQueryParam('pageSize', event, true) ?? 20);
 
     logger.debug('getFolderContentsHandler', {
         folderId,
@@ -30,8 +31,8 @@ async function getFolderContentsHandler(event: APIGatewayProxyEventWithOrg) {
         sortBy,
         sortDir,
         page,
-        pageSize
-    })
+        pageSize,
+    });
 
     return pipe(
         getContentsOfFolder({

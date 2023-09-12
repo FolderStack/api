@@ -12,3 +12,4 @@ export * from './validateObject';
 export * from './withErrorWrapper';
 export * from './withOrgWrapper';
 
+export * from './getQueryParam';

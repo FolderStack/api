@@ -5,7 +5,7 @@ import { dynamoDb } from './dynamodb';
 
 export async function getOrgOAuthConfig(clientId: string) {
     const getOAuthInfo = new QueryCommand({
-        TableName: config.tables.table,
+        TableName: config.tables.config,
         KeyConditionExpression: 'PK = :PK',
         FilterExpression: 'entityType = :entityType',
         ExpressionAttributeValues: marshall(

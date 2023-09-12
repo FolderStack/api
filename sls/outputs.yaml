@@ -4,3 +4,9 @@ Outputs:
     Value: !Ref FolderStackTable # the logical id of the DynamoDB resource
     Export:
       Name: FolderStack-Table-Name-Export-${self:custom.currentStage}
+
+  FolderStackConfigTableName:
+    Description: "The name of the Asset DynamoDB table"
+    Value: !Ref FolderStackConfigTable # the logical id of the DynamoDB resource
+    Export:
+      Name: FolderStack-ConfigTable-Name-Export-${self:custom.currentStage}

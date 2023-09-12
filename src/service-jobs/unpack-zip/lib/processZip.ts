@@ -1,75 +1,133 @@
-import { logger } from "@common/utils";
-import AdmZip from "adm-zip";
-import { uploadToS3 } from "./uploadToS3";
+import { logger } from '@common/utils';
+import AdmZip from 'adm-zip';
+import { createFolder } from './createFolder';
+import { uploadToS3 } from './uploadToS3';
 
-export async function processZip(zip: AdmZip, folderId: string, s3Key: string, bucket: string) {
-    const ignoredFiles = [
-        /^._/,
-        /^\.DS_Store$/,
-        /^\.AppleDouble/,
-        /^\.Trashes$/,
-        /^\.Spotlight-V100$/,
-        /^\.fseventsd$/,
-        /^Thumbs.db$/,
-        /^desktop.ini$/,
-        /^\$RECYCLE.BIN\//,
-        /^\.Trash-/,
-        /^lost\+found\//,
-        /^\.git\//,
-        /^\.svn\//,
-        /^\.hg\//,
-        /^\.lock$/,
-        /^~\$/
-    ];
+const ignoredFiles = [
+    /^._/,
+    /^\.DS_Store$/,
+    /^\.AppleDouble/,
+    /^\.Trashes$/,
+    /^\.Spotlight-V100$/,
+    /^\.fseventsd$/,
+    /^Thumbs.db$/,
+    /^desktop.ini$/,
+    /^\$RECYCLE.BIN\//,
+    /^\.Trash-/,
+    /^lost\+found\//,
+    /^\.git\//,
+    /^\.svn\//,
+    /^\.hg\//,
+    /^\.lock$/,
+    /^~\$/,
+];
 
-    const zipEntries = zip.getEntries();
+export async function processZip(
+    zip: AdmZip,
+    rootFolderId: string,
+    s3Key: string,
+    bucket: string,
+    orgId: string
+) {
+    logger.debug('processZip', { rootFolderId, s3Key, bucket, orgId });
+    const directoryMap = new Map<string, Map<string, string>>();
 
-    const topLevelEntries = zipEntries.filter(entry => {
-        const depth = entry.entryName.split('/').length;
-        return depth === 1 || (depth === 2 && entry.isDirectory); // account for the trailing / in directories
-    });
+    async function processEntry(entryPath: string, parentFolderId: string) {
+        logger.debug('processEntry', { entryPath, parentFolderId });
 
-    logger.debug('Iterating through zip entries...')
-    for (const entry of topLevelEntries) {
-        logger.debug('Entry name: ' + entry.name);
-        logger.debug('Entry path: ' + entry.entryName);
-        if (ignoredFiles.some(pattern => pattern.test(entry.name))) {
-            logger.debug('File is being ignored: ' + entry.entryName);
-            continue;
-        }
+        const directChildren = zip.getEntries().filter((e) => {
+            const relativePath = e.entryName.replace(entryPath, '');
+            const isDirectory = e.entryName.endsWith('/');
+            const sanitizedPath = isDirectory
+                ? relativePath.slice(0, -1)
+                : relativePath;
 
-        if (entry.isDirectory) {
-            logger.debug('Is a directory...')
-            const newZip = new AdmZip();
+            return (
+                e.entryName.startsWith(entryPath) &&
+                !sanitizedPath.includes('/') &&
+                e.entryName !== entryPath
+            );
+        });
 
-            // Get the nested entries for this directory
-            const nestedEntries = zipEntries.filter(nestedEntry =>
-                nestedEntry.entryName.startsWith(entry.entryName) && nestedEntry.entryName !== entry.entryName);
+        logger.debug('directChildren', { directChildren });
 
-            logger.debug(`Found ${nestedEntries.length} nested entries in the directory`)
-            for (const nestedEntry of nestedEntries) {
-                if (nestedEntry.isDirectory) {
-                    // If you want, add the subdirectories as well, but you might opt to skip this since another Lambda will handle it.
-                    continue;
-                }
-                const read = zip.readFile(nestedEntry);
-                if (!read) continue;
-
-                newZip.addFile(nestedEntry.entryName, read);
+        for (const entry of directChildren) {
+            if (ignoredFiles.some((pattern) => pattern.test(entry.name))) {
+                continue;
             }
 
-            // Now, upload this new ZIP to S3 to trigger another Lambda
-            const newZipName = `${folderId}_${entry.name}.zip`; // Prefix with folderId
-            logger.debug(`Uploading new zip of directory to: ${s3Key}/${newZipName}`);
-            await uploadToS3(bucket, `${s3Key}/${newZipName}`, newZip.toBuffer());
-        } else {
-            // Handle top-level files, prefixing them with the folderId
-            logger.debug('Is a file...')
-            
-            const fileName = `${folderId}_${entry.name}`;
+            if (entry.isDirectory) {
+                // Generate a new folder ID for the directory based on its name and parentFolderId.
+                logger.debug('entry name', { name: entry.name });
+                const folderNameParts = entry.entryName
+                    .split('/')
+                    .filter((p) => p.length > 0);
+                logger.debug('entry name parts', { name: folderNameParts });
+                const folderName = folderNameParts.pop() ?? entry.name;
 
-            logger.debug(`Unpacking to: ${s3Key}/${fileName}`);
-            await uploadToS3(bucket, `${s3Key}/${fileName}`, entry.getData());
+                logger.debug('isDirectory', {
+                    folderName,
+                    parentFolderId,
+                    entry,
+                });
+
+                if (!folderName) continue;
+
+                try {
+                    const doesFolderExist = directoryMap
+                        .get(parentFolderId)
+                        ?.get?.(folderName);
+                    if (doesFolderExist) {
+                        await processEntry(entry.entryName, doesFolderExist);
+                    } else {
+                        const createdFolderId = await createFolder(
+                            folderName,
+                            parentFolderId,
+                            orgId
+                        );
+
+                        logger.debug('folderId', { createdFolderId });
+
+                        if (createdFolderId) {
+                            directoryMap.set(
+                                parentFolderId,
+                                (() => {
+                                    const folders =
+                                        directoryMap.get(parentFolderId) ??
+                                        new Map();
+                                    folders.set(folderName, createdFolderId);
+                                    return folders;
+                                })()
+                            );
+
+                            await processEntry(
+                                entry.entryName,
+                                createdFolderId
+                            );
+                        }
+                    }
+                } catch (err) {
+                    logger.warn('Error processing folder', { err });
+                }
+            } else {
+                const fileName = `${parentFolderId}_${entry.name}`;
+                logger.debug('isFile', {
+                    parentFolderId,
+                    name: entry.name,
+                    fileName,
+                    key: `${s3Key}/${fileName}`,
+                });
+
+                // This'll re-trigger handleJobFile and branch into handleUnzippedFile
+                await uploadToS3(
+                    bucket,
+                    `${s3Key}/${fileName}`,
+                    entry.getData()
+                );
+            }
         }
     }
+
+    // Start the recursive processing from the root
+    await processEntry('', rootFolderId);
 }

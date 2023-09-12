@@ -1,8 +1,5 @@
 import { Ok, response } from '@common/responses';
-import {
-    logger,
-    validate
-} from '@common/utils';
+import { logger, validate } from '@common/utils';
 import { pipe } from 'fp-ts/function';
 import { object, string } from 'zod';
 import { createFolder } from '../../lib/db';
@@ -21,12 +18,21 @@ async function createFolderInternalHandler(event: CreateFolderInternalEvent) {
             name: string(),
             image: string().optional().nullable(),
             parent: string().optional().nullable(),
-            orgId: string()
+            orgId: string(),
         })
     );
+    logger.debug('createFolderInternalHandler', {
+        name,
+        image,
+        parent,
+        orgId,
+    });
 
     logger.debug('createFolderInternalHandler', { name, image, parent, orgId });
-    return pipe(createFolder(name, image ?? null, parent ?? null, orgId), response(Ok))();
+    return pipe(
+        createFolder(name, image ?? null, parent ?? null, orgId),
+        response(Ok)
+    )();
 }
 
 export const handler = createFolderInternalHandler;

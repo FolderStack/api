@@ -3,17 +3,17 @@ import { APIGatewayProxyEvent } from 'aws-lambda';
 import { ZodError, object, string } from 'zod';
 import { validate } from './validateObject';
 
-export function getPathParam<T extends APIGatewayProxyEvent>(
+export function getQueryParam<T extends APIGatewayProxyEvent>(
     key: string,
     event: T,
     optional?: false | undefined
 ): string;
-export function getPathParam<T extends APIGatewayProxyEvent>(
+export function getQueryParam<T extends APIGatewayProxyEvent>(
     key: string,
     event: T,
     optional: true
 ): string | undefined;
-export function getPathParam<T extends APIGatewayProxyEvent>(
+export function getQueryParam<T extends APIGatewayProxyEvent>(
     key: string,
     event: T,
     optional: boolean = false
@@ -23,7 +23,7 @@ export function getPathParam<T extends APIGatewayProxyEvent>(
             [key]: optional ? string().optional() : string(),
         });
 
-        const result = validate(event.pathParameters, schema);
+        const result = validate(event.queryStringParameters, schema);
 
         return result[key] as any;
     } catch (error) {
@@ -43,7 +43,7 @@ export function getPathParam<T extends APIGatewayProxyEvent>(
 
             // Use firstError.path to determine which field caused the error
             const fieldPath = firstError.path.join('.');
-            const errorMessage = `Expected path parameter '${fieldPath}' to be a ${messageType}${
+            const errorMessage = `Expected query parameter '${fieldPath}' to be a ${messageType}${
                 'received' in firstError
                     ? `, received '${firstError.received}'`
                     : ''

@@ -55,19 +55,13 @@ Resources:
                           - "${self:service}-${self:custom.currentStage}-updateFileInternal"
                 - Effect: "Allow"
                   Action:
-                    - "s3:GetObject"
-                    - "s3:PutObject"
-                    - "s3:DeleteObject"
-                  Resource: "arn:aws:s3:::${self:custom.bucket}/*"
+                    - "s3:*"
+                  Resource: "*"
                 - Effect: "Allow"
                   Action:
                     - "ec2:CreateNetworkInterface"
                     - "ec2:DescribeNetworkInterfaces"
                     - "ec2:DeleteNetworkInterface"
-                  Resource: "*"
-                - Effect: "Allow"
-                  Action:
-                    - "dax:*"
                   Resource: "*"
                 - Effect: "Allow"
                   Action:

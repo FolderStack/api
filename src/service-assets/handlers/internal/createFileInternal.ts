@@ -1,8 +1,5 @@
 import { Created, response } from '@common/responses';
-import {
-    validate,
-    withErrorWrapper
-} from '@common/utils';
+import { logger, validate, withErrorWrapper } from '@common/utils';
 import { pipe } from 'fp-ts/function';
 import { number, object, string } from 'zod';
 import { createFile } from '../../lib/db';
@@ -26,9 +23,17 @@ async function createFileInternalHandler(event: CreateFileInternalEvent) {
             fileSize: number(),
             fileType: string(),
             folderId: string(),
-            orgId: string()
+            orgId: string(),
         })
     );
+    logger.debug('createFileInternalHandler', {
+        name,
+        file,
+        fileSize,
+        fileType,
+        folderId,
+        orgId,
+    });
 
     return pipe(
         createFile(name, file, fileSize, fileType, folderId, orgId),

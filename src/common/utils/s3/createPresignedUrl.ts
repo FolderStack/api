@@ -48,6 +48,7 @@ export async function createPresignedGetAsync(
         }
         const command = new GetObjectCommand({ Bucket: bucket, Key: key });
         const url = await getSignedUrl(s3, command, { expiresIn: 3600 }); // URL will be valid for 1 hour
+        logger.debug(`Got url for '${bucket}/${key}': '${url}'`);
         return url;
     } catch (err) {
         logger.debug('Error creating presigned get url', err);

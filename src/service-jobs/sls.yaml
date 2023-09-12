@@ -25,16 +25,24 @@ createZipUploadUrl:
         authorizer:
           name: authoriser
 
-handleJobFile:
+handleUnzippedFile:
   handler: ./src/service-jobs/unpack-zip/handlers/handleJobFile.handler
   memorySize: 512
+  timeout: 900
   role: HandleJobFileUnzippingRole
   events:
     - s3:
         bucket: ${self:custom.bucket}
         event: s3:ObjectCreated:*
         rules:
-          - prefix: jobs/
-  
+          - prefix: unzipped/jobs/
 
+handleZippedJob:
+  handler: ./src/service-jobs/unpack-zip/handlers/enqueueZipProcessing.handler
+  events:
+    - s3:
+        bucket: ${self:custom.bucket}
+        event: s3:ObjectCreated:*
+        rules:
+          - prefix: zipped/jobs/
 

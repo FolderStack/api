@@ -11,7 +11,7 @@ export async function getOrgConfig(orgId: string) {
     logger.debug(`getOrgConfig: ${orgId}`);
 
     const getConfig = new GetItemCommand({
-        TableName: config.tables.table,
+        TableName: config.tables.config,
         Key: marshall({
             PK: orgId,
             SK: `Config`,
@@ -19,6 +19,8 @@ export async function getOrgConfig(orgId: string) {
     });
 
     const result = await dynamoDb.send(getConfig);
+
+    logger.debug('OrgConfig result:', { result });
 
     if (!result.Item) return null;
     return unmarshall(result.Item)?.config ?? {};

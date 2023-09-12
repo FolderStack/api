@@ -9,7 +9,7 @@ export async function getOrgTheme(orgId: string) {
     }
 
     const getTheme = new GetItemCommand({
-        TableName: config.tables.table,
+        TableName: config.tables.config,
         Key: marshall({
             PK: orgId,
             SK: `Theme`,

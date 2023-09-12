@@ -1,0 +1,18 @@
+Resources:
+  ZipProcessingQueue:
+    Type: AWS::SQS::Queue
+    Properties: 
+      QueueName: "folderstack-zip-processing-${self:custom.currentStage}"
+      VisibilityTimeout: 300 # This is the time that a message will be hidden from other consumers after it has been acquired. This should be set according to how long you expect the processing of each message to take.
+      MessageRetentionPeriod: 1209600 # This is the time a message will remain in the queue without being deleted, in seconds. Default value is 14 days.
+      RedrivePolicy:
+        maxReceiveCount: 5 # This is the number of times a message will be retried before it's moved to the dead-letter queue.
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - "ZipProcessingDeadLetterQueue"
+            - "Arn"
+
+  ZipProcessingDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: "ZipProcessingDeadLetterQueue"

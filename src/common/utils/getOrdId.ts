@@ -41,7 +41,7 @@ export async function getOrgFromEvent(event: APIGatewayProxyEvent) {
     }
 
     const getOrg = new QueryCommand({
-        TableName: config.tables.table,
+        TableName: config.tables.config,
         KeyConditionExpression: 'PK = :PK',
         FilterExpression: 'entityType = :entityType',
         ExpressionAttributeValues: marshall({

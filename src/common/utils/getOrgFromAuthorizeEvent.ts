@@ -27,7 +27,7 @@ export async function getOrgFromAuthorizeEvent(
         if (!oauthConfig) return null;
 
         const getOrg = new QueryCommand({
-            TableName: config.tables.table,
+            TableName: config.tables.config,
             KeyConditionExpression: 'PK = :PK',
             FilterExpression: 'entityType = :entityType',
             ExpressionAttributeValues: marshall({

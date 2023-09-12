@@ -79,6 +79,17 @@ custom:
         local: "folderstack-staging"
         staging: "folderstack-staging"
         production: "folderstack-production"
+    configTable:
+        local: "folderstack-config-staging"
+        staging: "folderstack-config-staging"
+        production: "folderstack-config-production"
+    zipQueue:
+        local: ""
+        staging: ""
+        production:
+            Fn::Sub: 
+              - "https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/${QueueName}"
+              - QueueName: "folderstack-zip-processing-production"
     bucket: "folderstack-assets-${self:custom.currentStage}"
 
 provider:
@@ -91,10 +102,12 @@ provider:
         ENV: ${self:custom.currentStage}
         LOG_LEVEL: ${self:custom.logLevel, 'info'}
         TABLE_NAME: ${self:custom.table.${self:custom.currentStage}}
+        CONFIG_TABLE_NAME: ${self:custom.configTable.${self:custom.currentStage}}
         BUCKET_NAME: ${self:custom.bucket}
         STAGE: ${self:custom.currentStage}
         SERVICE_NAME: ${self:service}
         DAX_ENDPOINT: "daxs://folderstack-prod.sa2tye.dax-clusters.ap-southeast-2.amazonaws.com:9111"
+        ZIP_PROCESSOR_QUEUE: ${self:custom.zipQueue.${self:custom.currentStage}}
     iamRoleStatements:
         - Effect: "Allow"
           Action:
@@ -113,13 +126,14 @@ provider:
           Resource: "*"
         - Effect: "Allow"
           Action:
-            - "dax:*"
+            - "sqs:*"
           Resource: "*"
-
 
 resources:
     - ${file(./sls/resources/roles/jobs.yaml)}
     - ${file(./sls/resources/tables/assets.yaml)}
+    - ${file(./sls/resources/tables/config.yaml)}
+    - ${file(./sls/resources/queues/zipQueue.yaml)}
     - ${file(./sls/resources/api/responses.yaml)}
     - ${file(./sls/outputs.yaml)}
 

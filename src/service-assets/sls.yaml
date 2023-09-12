@@ -8,7 +8,7 @@ getFolderTree:
         path: /tree
         cors: true
         caching:
-          enabled: true
+          enabled: false
         authorizer:
           name: authoriser
 
@@ -22,7 +22,7 @@ getFolderContents:
         path: /folders/{folderId}
         cors: true
         caching:
-          enabled: true
+          enabled: false
           cacheKeyParameters:
             - name: request.path.folderId
         authorizer:

@@ -6,7 +6,6 @@ import {
 import { logger, s3 } from '@common/utils';
 import { S3Event } from 'aws-lambda';
 import mime from 'mime';
-import { validate as isValidUUID } from 'uuid';
 import { createFile, getJobId, getName, getOrgId } from '../lib';
 import { Job } from '../lib/job';
 import { updateFileS3Key } from '../lib/updateFileS3Key';
@@ -19,6 +18,10 @@ export async function handleUnzippedFile(event: S3Event) {
     if (key.includes('+')) {
         key = key.replace(/\+/g, ' ');
     }
+
+    key = decodeURIComponent(key);
+
+    logger.debug(`Object key: '${key}'`);
 
     const orgId = getOrgId(key);
     const jobId = getJobId(key);
@@ -54,11 +57,6 @@ export async function handleUnzippedFile(event: S3Event) {
         if (!parent) {
             logger.debug("Couldn't get file's containing folder.");
             throw new Error("Couldn't get file's containing folder.");
-        }
-
-        if (!isValidUUID(parent)) {
-            logger.debug("Invalid parent folder ID.");
-            throw new Error("Invalid parent folder ID.");
         }
 
         const fileSize = event.Records[0].s3.object.size;
@@ -122,19 +120,14 @@ export async function handleUnzippedFile(event: S3Event) {
             ),
 
             // Update the file's S3 Key as we left it empty above.
-            updateFileS3Key(
-                fileId,
-                parent,
-                orgId,
-                {
-                    file: liveDestKey,
-                    asset: `https://${bucket}.${region}.s3.amazonaws.com/${liveDestKey}`
-                }
-            ),
+            updateFileS3Key(fileId, parent, orgId, {
+                file: liveDestKey,
+                asset: `https://${bucket}.${region}.s3.amazonaws.com/${liveDestKey}`,
+            }),
         ]);
 
-        await job.success()
-        
+        await job.success();
+
         // Delete the original
         logger.debug('Deleting old object');
         await s3.send(
@@ -144,6 +137,7 @@ export async function handleUnzippedFile(event: S3Event) {
             })
         );
     } catch (error: any) {
+        console.log(error);
         logger.error({ error, event, message: 'Error processing file' });
         await job.fail(error?.message ?? `Failed to process file.`);
         throw error;

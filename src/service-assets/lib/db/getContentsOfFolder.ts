@@ -7,7 +7,6 @@ import { config } from '@config';
 import * as O from 'fp-ts/Option';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/function';
-import _ from 'lodash';
 import { fromFileRecordToJson } from '../fromFileRecordToJson';
 import { fromFolderRecordToJson } from '../fromFolderRecordToJson';
 import { IFile, IFileRecord, IFolder, IFolderRecord } from '../type';
@@ -44,6 +43,11 @@ interface Result {
     };
 }
 
+// Utility function to check if a date is valid
+function isValidDate(d: Date) {
+    return !isNaN(d as any);
+}
+
 export function getContentsOfFolder(
     params: Parameters
 ): TE.TaskEither<Error, Result> {
@@ -51,15 +55,17 @@ export function getContentsOfFolder(
         ':parentId': `Folder#${params.folderId}`,
     };
     let filterExpressions: string[] = [];
-
     const { filter } = params;
-    if (!_.isEmpty(filter.from) && !_.isNaN(new Date(filter.from as any))) {
-        attributeValues[':fromDate'] = new Date(params.filter.from!).getTime();
+
+    const fromDate = new Date(filter.from as any);
+    if (filter.from && isValidDate(fromDate)) {
+        attributeValues[':fromDate'] = fromDate.getTime();
         filterExpressions.push('createdAt >= :fromDate');
     }
 
-    if (!_.isEmpty(filter.to) && !_.isNaN(new Date(filter.to as any))) {
-        attributeValues[':toDate'] = new Date(params.filter.to!).getTime();
+    const toDate = new Date(filter.to as any);
+    if (filter.to && isValidDate(toDate)) {
+        attributeValues[':toDate'] = toDate.getTime();
         filterExpressions.push('createdAt <= :toDate');
     }
 
@@ -82,7 +88,7 @@ export function getContentsOfFolder(
         FilterExpression: filterExpressions.length
             ? filterExpressions.join(' and ')
             : undefined,
-        // Limit: params.pagination.pageSize,
+        Limit: params.pagination.pageSize,
         ScanIndexForward: params.sort.order === 'asc',
     };
 

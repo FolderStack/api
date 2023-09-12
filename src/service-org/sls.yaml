@@ -8,5 +8,6 @@ getOrgConfig:
         cors: true
         caching:
           enabled: true
+          ttlInSeconds: 300
         authorizer:
           name: authoriser

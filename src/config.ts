@@ -1,9 +1,12 @@
 export const isLocal = process.env.ENV === 'local';
 
 export const config = {
-    queues: {},
+    queues: {
+        zipQueue: process.env.ZIP_PROCESSOR_QUEUE,
+    },
     tables: {
         table: process.env.TABLE_NAME!,
+        config: process.env.CONFIG_TABLE_NAME!,
     },
     constants: {},
     buckets: {
@@ -15,7 +18,7 @@ export const config = {
         domain: process.env.AUTH0_DOMAIN!,
     },
     dax: {
-        endpoint: process.env.DAX_ENDPOINT
+        endpoint: process.env.DAX_ENDPOINT,
     },
     isLocal,
 } as const;
