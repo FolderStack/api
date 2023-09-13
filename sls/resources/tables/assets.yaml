@@ -38,17 +38,6 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
-        - IndexName: sizeIndex
-          KeySchema:
-            - AttributeName: PK
-              KeyType: HASH
-            - AttributeName: fileSize
-              KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 5
-            WriteCapacityUnits: 5
         - IndexName: createdAtIndex
           KeySchema:
             - AttributeName: PK
@@ -76,6 +65,17 @@ Resources:
             - AttributeName: PK
               KeyType: HASH
             - AttributeName: entityType
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: sizeIndex
+          KeySchema:
+            - AttributeName: PK
+              KeyType: HASH
+            - AttributeName: fileSize
               KeyType: RANGE
           Projection:
             ProjectionType: ALL

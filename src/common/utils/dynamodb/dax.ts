@@ -137,6 +137,3 @@ export class DaxClient extends DynamoDBClient {
         return super.send(command);
     }
 }
-
-const client = new DaxClient({} as any);
-const result = await client.send(new QueryCommand());

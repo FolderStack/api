@@ -6,3 +6,13 @@ authoriser:
       AUDIENCE: ${ssm:/folderstack/${self:custom.currentStage}/AUDIENCE, null}
       JWKS_URI: ${ssm:/folderstack/${self:custom.currentStage}/JWKS_URI, null}
       TOKEN_ISSUER: ${ssm:/folderstack/${self:custom.currentStage}/TOKEN_ISSUER, null}
+  # vpc:
+  #   securityGroupIds:
+  #     - sg-06b93162693cc377b
+  #   subnetIds:
+  #     # Private subnets
+  #     - subnet-07fa42a56de5197d3
+  #     - subnet-078e3c2bd470a74c9
+  #     # Public subnets
+  #     - subnet-0dc55af201c1b738e
+  #     - subnet-09f6326ec80bd718a

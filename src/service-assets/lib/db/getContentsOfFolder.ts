@@ -128,6 +128,7 @@ export function getContentsOfFolder(
                         .map((r) => {
                             if (r.org !== params.orgId) return null;
                             if (r.entityType === 'File') {
+                                logger.debug('got file', { file: r });
                                 return pipe(
                                     TE.tryCatch(
                                         () => fromFileRecordToJson(r, true),
@@ -145,16 +146,15 @@ export function getContentsOfFolder(
                                         )
                                     )
                                 );
-                            }
-                            if (r.entityType === 'Folder')
+                            } else if (r.entityType === 'Folder') {
+                                logger.debug('got folder', { folder: r });
                                 return pipe(
                                     O.fromNullable(fromFolderRecordToJson(r)),
                                     TE.fromOption(
                                         () => new Error('Folder not found')
                                     )
                                 );
-
-                            return TE.right(null);
+                            }
                         })
                         .filter((a) => a !== null) as TE.TaskEither<
                         Error,

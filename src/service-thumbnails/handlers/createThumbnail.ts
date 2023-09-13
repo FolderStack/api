@@ -2,7 +2,7 @@ import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { logger, s3 } from '@common/utils';
 import { S3Event } from 'aws-lambda';
 import { execSync } from 'child_process';
-import { createWriteStream, promises as fs } from 'fs';
+import { createWriteStream, existsSync, promises as fs, statSync } from 'fs';
 import { tmpdir } from 'os';
 import { extname, join } from 'path';
 import { Readable } from 'stream';
@@ -31,7 +31,10 @@ export async function handler(event: S3Event) {
     const inputPath = join(tmpdir(), `input${extension}`);
     try {
         const getObject = new GetObjectCommand(params);
+        logger.debug({ getObject });
         const s3Object = await s3.send(getObject);
+
+        logger.debug({ bucket, key });
 
         if (!s3Object.Body) {
             throw new Error('No body in s3 object');
@@ -44,6 +47,16 @@ export async function handler(event: S3Event) {
                     .on('close', () => resolve(null));
             }
         });
+
+        const stats = statSync(inputPath);
+        const fileSizeInBytes = stats.size;
+
+        logger.debug('File stats', { stats });
+
+        if (fileSizeInBytes === 0) {
+            logger.debug('File is 0 bytes. exiting early...');
+            return;
+        }
     } catch (error) {
         logger.warn(error);
         return;
@@ -52,6 +65,17 @@ export async function handler(event: S3Event) {
     // Add error handling for unsupported file types
     try {
         const outputPath = join(tmpdir(), 'output.png');
+
+        logger.info(`Input path: ${inputPath}`);
+        logger.info(`Output path: ${outputPath}`);
+
+        if (!existsSync(inputPath)) {
+            throw new Error('Input file not found');
+        }
+
+        const magickVersion = execSync('/opt/bin/magick -version').toString();
+        logger.debug(`ImageMagick Version: ${magickVersion}`);
+
         execSync(
             `/opt/bin/magick convert -resize 350x350 ${inputPath} ${outputPath}`
         );

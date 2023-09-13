@@ -15,4 +15,4 @@ Resources:
   ZipProcessingDeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: "ZipProcessingDeadLetterQueue"
+      QueueName: "folderstack-zip-processing-dlq-${self:custom.currentStage}"

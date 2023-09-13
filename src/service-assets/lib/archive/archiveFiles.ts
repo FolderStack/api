@@ -7,12 +7,11 @@ import { getFilesByIdList } from '../db/getFilesByIdList';
 export function archiveFiles(
     archive: Archiver,
     path: string,
-    folder: string,
     fileIds: string[],
     orgId: string
 ) {
     return pipe(
-        getFilesByIdList(folder, fileIds, orgId),
+        getFilesByIdList(fileIds, orgId),
         TE.map((files) =>
             files.map((item) =>
                 appendToArchive(item, `${path}${item}`, archive)

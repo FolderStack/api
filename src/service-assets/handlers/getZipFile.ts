@@ -13,23 +13,28 @@ import { object, string } from 'zod';
 import { zipFolder, zipSelection } from '../lib/archive';
 
 async function getZipeFileHandler(event: APIGatewayProxyEventWithOrg) {
-    const { folderId, fileIds } = validate(
+    const data = validate(
         getParsedBody(event),
         object({
             folderId: string(),
-            fileIds: string().array().nullable(),
-        })
+        }).or(
+            object({
+                fileIds: string().array(),
+            })
+        )
     );
 
     const archive = archiver('zip');
     const random = randomInt(1, 1000);
-    const key = `/downloads/${
-        event.org.id
-    }/${folderId}/${Date.now()}.rand${random}/download.zip`;
 
-    const task = fileIds
-        ? zipSelection(archive, key, folderId, fileIds, event.org.id)
-        : zipFolder(archive, key, folderId, event.org.id);
+    const org = event.org.id;
+    const randKey = `${Date.now()}.rand${random}`;
+    const key = `/downloads/${org}/${randKey}/download.zip`;
+
+    const task =
+        'fileIds' in data
+            ? zipSelection(archive, key, data.fileIds, event.org.id)
+            : zipFolder(archive, key, data.folderId, event.org.id);
 
     return pipe(task, response(Ok))();
 }

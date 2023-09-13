@@ -16,7 +16,7 @@ export class Authoriser {
             logger.debug('authorize: ', { decoded });
 
             if (!decoded || !decoded?.header?.kid) {
-                logger.debug('authorize err:', 'no key', { decoded });
+                logger.debug('authorize err:', 'no key', { decoded, token });
                 throw new Error('No key');
             }
 

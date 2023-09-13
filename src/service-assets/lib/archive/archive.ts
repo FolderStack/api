@@ -31,11 +31,10 @@ export function zipFolder(
 export function zipSelection(
     archiver: Archiver,
     key: string,
-    folderId: string,
     selection: string[],
     org: string
 ) {
-    const archiveTask = archiveFiles(archiver, '/', folderId, selection, org);
+    const archiveTask = archiveFiles(archiver, '/', selection, org);
 
     return pipe(
         archiveTask,
