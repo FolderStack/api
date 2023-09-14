@@ -18,7 +18,9 @@ export function appendToArchive(
                 s3.send(
                     new GetObjectCommand({
                         Bucket: config.buckets.assets,
-                        Key: file.asset,
+                        Key: file.asset
+                            .split(config.buckets.assets + '/')
+                            .pop(),
                     })
                 ),
             (reason) => new Error(String(reason))

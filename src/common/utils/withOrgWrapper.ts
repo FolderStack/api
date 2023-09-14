@@ -22,7 +22,7 @@ export function withOrgWrapper(
     ) => Promise<APIGatewayProxyResult>
 ) {
     return async function handler(
-        event: APIGatewayProxyEventWithOrg,
+        event: APIGatewayProxyEvent,
         context: Context,
         callback: Callback
     ): Promise<APIGatewayProxyResult> {
@@ -34,9 +34,13 @@ export function withOrgWrapper(
         }
 
         logger.debug('Got org', org);
-        event.org = org;
+        (event as APIGatewayProxyEventWithOrg).org = org;
 
-        const result = await fn(event, context, callback);
+        const result = await fn(
+            event as APIGatewayProxyEventWithOrg,
+            context,
+            callback
+        );
         return result;
     };
 }

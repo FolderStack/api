@@ -16,7 +16,6 @@ export function getSubFolders(parentId: string, orgId: string) {
         ExpressionAttributeValues: marshall({
             ':pk': `Folder#${parentId}`,
             ':entityType': 'Folder',
-            // ':deletedAt': null,
             ':org': orgId,
         }),
     };

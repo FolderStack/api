@@ -7,7 +7,7 @@ import { config } from '@config';
 import * as O from 'fp-ts/Option';
 import * as TE from 'fp-ts/TaskEither';
 import { pipe } from 'fp-ts/function';
-import { fromFileRecordToJson } from '../fromFileRecordToJson';
+import { fromFileRecordToJsonWithSignedImageUrls } from '../fromFileRecordToJson';
 import { fromFolderRecordToJson } from '../fromFolderRecordToJson';
 import { IFile, IFileRecord, IFolder, IFolderRecord } from '../type';
 import { getFolder } from './getFolder';
@@ -131,7 +131,10 @@ export function getContentsOfFolder(
                                 logger.debug('got file', { file: r });
                                 return pipe(
                                     TE.tryCatch(
-                                        () => fromFileRecordToJson(r, true),
+                                        () =>
+                                            fromFileRecordToJsonWithSignedImageUrls(
+                                                r
+                                            ),
                                         (err) =>
                                             new Error(
                                                 err instanceof Error

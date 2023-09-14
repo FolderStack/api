@@ -2,6 +2,7 @@ import { Ok } from '@common/responses';
 import {
     APIGatewayProxyEventWithOrg,
     withErrorWrapper,
+    withEtagWrapper,
     withOrgWrapper,
 } from '@common/utils';
 import { OrgDb } from '../lib';
@@ -17,4 +18,6 @@ export async function getConfigHandler(event: APIGatewayProxyEventWithOrg) {
     });
 }
 
-export const handler = withErrorWrapper(withOrgWrapper(getConfigHandler));
+export const handler = withErrorWrapper(
+    withOrgWrapper(withEtagWrapper(getConfigHandler))
+);

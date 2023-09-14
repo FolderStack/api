@@ -10,6 +10,7 @@ export * from './getPathParam';
 export * from './lambda';
 export * from './validateObject';
 export * from './withErrorWrapper';
+export * from './withEtagWrapper';
 export * from './withOrgWrapper';
 
 export * from './getQueryParam';

@@ -50,23 +50,24 @@ export function deleteFile(
             if (item.org !== org) return TE.left(new HttpForbiddenError());
 
             return pipe(
-                TE.tryCatch(
-                    () => fromFileRecordToJson(item as IFileRecord),
-                    (err) => err as Error
-                ),
-                TE.chain(file => {
+                TE.right(fromFileRecordToJson(item as IFileRecord)),
+                TE.chain((file) => {
                     const fileSize = file.fileSize ?? 0;
                     return pipe(
                         new DeleteItemCommand(deleteParams),
                         sendWriteCommand,
                         TE.chain(() => {
                             if (folder && folder !== 'ROOT') {
-                                return updateFolderFileSize(folder, -fileSize, org);
+                                return updateFolderFileSize(
+                                    folder,
+                                    -fileSize,
+                                    org
+                                );
                             }
                             return TE.right(void 0);
                         })
-                    )
-                }),
+                    );
+                })
             );
         })
     );

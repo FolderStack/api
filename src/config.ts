@@ -7,6 +7,7 @@ export const config = {
     tables: {
         table: process.env.TABLE_NAME!,
         config: process.env.CONFIG_TABLE_NAME!,
+        caching: process.env.CACHE_TABLE_NAME!,
     },
     constants: {},
     buckets: {

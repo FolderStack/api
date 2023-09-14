@@ -15,12 +15,7 @@ export async function handler(
     cb: Callback<APIGatewayAuthorizerResult>
 ) {
     if (config.isLocal) {
-        const policy = AWSPolicyGenerator.generate(
-            '0',
-            'Allow',
-            event.methodArn,
-            {}
-        );
+        const policy = AWSPolicyGenerator.generate('0', 'Allow', `*`, {});
         cb(undefined, policy);
         return;
     }
@@ -72,7 +67,9 @@ export async function handler(
             const policy = AWSPolicyGenerator.generate(
                 result.sub!,
                 'Allow',
-                event.methodArn,
+                // TODO: Update this to target functions better.
+                // This is currently a wildcard for authorization caching...
+                '*',
                 context
             );
 

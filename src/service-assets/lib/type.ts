@@ -43,6 +43,7 @@ export interface IFile {
     fileType: string;
     createdAt: Date;
     updatedAt: Date;
+    file: string;
     type: 'file';
 }
 
@@ -51,10 +52,11 @@ export interface IFileRecord extends TableProperties, HasDates {
     SK: `File#${string}`;
     entityType: 'File';
 
-    // The S3 Key or URL for the asset itself.
+    // The S3 URL for the asset itself.
     asset: string;
 
     name: string;
+    file: string; // S3 Key
     fileSize: number;
     fileType: string; // the EXT file type. i.e. png, jpeg, pdf etc...
 

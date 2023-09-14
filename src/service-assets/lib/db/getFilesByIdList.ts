@@ -4,30 +4,25 @@ import { sendReadCommand } from '@common/utils';
 import { config } from '@config';
 import * as TE from 'fp-ts/lib/TaskEither';
 import { pipe } from 'fp-ts/lib/function';
-import { fromFileRecordToJson } from '../fromFileRecordToJson';
-import { IFile, IFileRecord } from '../type';
+import { IFileRecord } from '../type';
 
 export function getFilesByIdList(
     ids: string[],
     org: string
-): TE.TaskEither<Error, IFile[]> {
+): TE.TaskEither<Error, IFileRecord[]> {
     const scanInput: ScanCommandInput = {
         TableName: config.tables.table,
         ScanFilter: {
             SK: {
-                AttributeValueList: ids.map((id) => `File#${id}`),
+                AttributeValueList: ids.map((id) => ({ S: `File#${id}` })),
                 ComparisonOperator: 'IN',
             },
             org: {
-                AttributeValueList: [org],
+                AttributeValueList: [{ S: org }],
                 ComparisonOperator: 'EQ',
             },
         },
     };
 
-    return pipe(
-        new ScanCommand(scanInput),
-        sendReadCommand<IFileRecord>,
-        TE.map((items) => items.map((record) => fromFileRecordToJson(record)))
-    );
+    return pipe(new ScanCommand(scanInput), sendReadCommand<IFileRecord>);
 }

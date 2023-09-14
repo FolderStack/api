@@ -5,6 +5,7 @@ import {
     getQueryParam,
     logger,
     withErrorWrapper,
+    withEtagWrapper,
     withOrgWrapper,
 } from '@common/utils';
 import { pipe } from 'fp-ts/lib/function';
@@ -57,5 +58,5 @@ async function getFolderContentsHandler(event: APIGatewayProxyEventWithOrg) {
 }
 
 export const handler = withErrorWrapper(
-    withOrgWrapper(getFolderContentsHandler)
+    withOrgWrapper(withEtagWrapper(getFolderContentsHandler, 300))
 );

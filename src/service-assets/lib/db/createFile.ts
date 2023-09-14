@@ -23,7 +23,7 @@ export function createFile(
     };
 
     const id = randomUUID();
-    const record: IFileRecord = {
+    const record: Omit<IFileRecord, 'file'> = {
         PK: `Folder#${folder}`,
         SK: `File#${id}`,
         entityType: 'File',
@@ -46,11 +46,6 @@ export function createFile(
         new PutItemCommand(params),
         sendWriteCommand,
         TE.chain(() => updateFolderFileSize(folder, fileSize, org)),
-        TE.chain(() => 
-            TE.tryCatch(
-                () => fromFileRecordToJson(record),
-                (err) => err as Error
-            )
-        ),
+        TE.chain(() => TE.right(fromFileRecordToJson(record as IFileRecord)))
     );
 }

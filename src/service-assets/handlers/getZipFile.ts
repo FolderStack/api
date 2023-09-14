@@ -4,6 +4,7 @@ import {
     getParsedBody,
     validate,
     withErrorWrapper,
+    withEtagWrapper,
     withOrgWrapper,
 } from '@common/utils';
 import archiver from 'archiver';
@@ -29,7 +30,7 @@ async function getZipeFileHandler(event: APIGatewayProxyEventWithOrg) {
 
     const org = event.org.id;
     const randKey = `${Date.now()}.rand${random}`;
-    const key = `/downloads/${org}/${randKey}/download.zip`;
+    const key = `downloads/${org}/${randKey}/Archive.zip`;
 
     const task =
         'fileIds' in data
@@ -39,4 +40,6 @@ async function getZipeFileHandler(event: APIGatewayProxyEventWithOrg) {
     return pipe(task, response(Ok))();
 }
 
-export const handler = withErrorWrapper(withOrgWrapper(getZipeFileHandler));
+export const handler = withErrorWrapper(
+    withOrgWrapper(withEtagWrapper(getZipeFileHandler, 300))
+);
