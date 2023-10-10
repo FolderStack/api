@@ -50,7 +50,7 @@ async function getFolderContentsHandler(event: APIGatewayProxyEventWithOrg) {
             },
             pagination: {
                 page,
-                pageSize: Number.isNaN(pageSize) ? 200 : pageSize,
+                pageSize: 200, //Number.isNaN(pageSize) ? 200 : pageSize,
             },
         }),
         response(Ok)
