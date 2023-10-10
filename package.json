@@ -44,6 +44,7 @@
         "@babel/preset-typescript": "^7.21.4",
         "@sentry/types": "^7.48.0",
         "@types/adm-zip": "^0",
+        "@types/amazon-dax-client": "^1.2.5",
         "@types/archiver": "^5",
         "@types/aws-lambda": "8.10.109",
         "@types/babel__core": "^7",

@@ -5374,6 +5374,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/amazon-dax-client@npm:^1.2.5":
+  version: 1.2.5
+  resolution: "@types/amazon-dax-client@npm:1.2.5"
+  dependencies:
+    "@types/aws-sdk2-types": "*"
+    "@types/node": "*"
+  checksum: 57fdfad16379259e30e4fe959603c3a92ca14e8b95d53fc0ec7e87d52ebfa1ec368e539b61c7fe12e9b974cd1acb18d22202c21da86a39218a1b8fcfb8ffe8dd
+  languageName: node
+  linkType: hard
+
 "@types/archiver@npm:^5":
   version: 5.3.2
   resolution: "@types/archiver@npm:5.3.2"
@@ -5387,6 +5397,15 @@ __metadata:
   version: 8.10.109
   resolution: "@types/aws-lambda@npm:8.10.109"
   checksum: 879dd30806bbcdcc5495192ed139ab6e7e65d2481c4c80237d8293e3a33e9fcbfb662109246164c493de9fd13b32d1780359a0f191238bd62fd4be14c1efe2fe
+  languageName: node
+  linkType: hard
+
+"@types/aws-sdk2-types@npm:*":
+  version: 0.0.1
+  resolution: "@types/aws-sdk2-types@npm:0.0.1"
+  dependencies:
+    "@types/node": "*"
+  checksum: 44118bc72326a93da8606d6190b8ed9afd9d89e2fc6667b8de7ff4b97de034b8d5c683b56e74bb1f04f5c8b39a93022ee3692e88f309f44feb4a6dbe61411e1b
   languageName: node
   linkType: hard
 
@@ -8834,6 +8853,7 @@ __metadata:
     "@babel/preset-typescript": ^7.21.4
     "@sentry/types": ^7.48.0
     "@types/adm-zip": ^0
+    "@types/amazon-dax-client": ^1.2.5
     "@types/archiver": ^5
     "@types/aws-lambda": 8.10.109
     "@types/babel__core": ^7

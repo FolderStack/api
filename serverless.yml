@@ -97,7 +97,7 @@ custom:
     dax:
         local: ""
         staging: ""
-        production: "daxs://folderstack-prod.sa2tye.dax-clusters.ap-southeast-2.amazonaws.com:9111"
+        production: "daxs://folderstack-staging.sa2tye.dax-clusters.ap-southeast-2.amazonaws.com:9111"
 
 provider:
     name: aws
@@ -115,12 +115,12 @@ provider:
         SERVICE_NAME: ${self:service}
         DAX_ENDPOINT: ${self:custom.dax.${self:custom.currentStage}}
         ZIP_PROCESSOR_QUEUE: ${self:custom.zipQueue.${self:custom.currentStage}}
-    # vpc:
-    #   securityGroupIds:
-    #     - sg-06b93162693cc377b
-    #   subnetIds:
-    #     - subnet-07fa42a56de5197d3
-    #     - subnet-078e3c2bd470a74c9
+    vpc:
+      securityGroupIds:
+        - sg-06b93162693cc377b
+      subnetIds:
+        - subnet-07fa42a56de5197d3
+        - subnet-078e3c2bd470a74c9
     iamRoleStatements:
         - Effect: "Allow"
           Action:
@@ -140,6 +140,10 @@ provider:
         - Effect: "Allow"
           Action:
             - "sqs:*"
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - "dax:*"
           Resource: "*"
 
 resources:

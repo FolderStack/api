@@ -2,13 +2,13 @@ authoriser:
   handler: ./src/service-authoriser/handlers/authorise.handler
   timeout: 30
   memorySize: 1024
-  # vpc:
-  #   securityGroupIds:
-  #     - sg-06b93162693cc377b
-  #   subnetIds:
-  #     # Private subnets
-  #     - subnet-07fa42a56de5197d3
-  #     - subnet-078e3c2bd470a74c9
-  #     # Public subnets
-  #     - subnet-0dc55af201c1b738e
-  #     - subnet-09f6326ec80bd718a
+  vpc:
+    securityGroupIds:
+      - sg-06b93162693cc377b
+    subnetIds:
+      # Private subnets
+      - subnet-07fa42a56de5197d3
+      - subnet-078e3c2bd470a74c9
+      # Public subnets
+      - subnet-0dc55af201c1b738e
+      - subnet-09f6326ec80bd718a

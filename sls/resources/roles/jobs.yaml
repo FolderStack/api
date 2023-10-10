@@ -73,4 +73,8 @@ Resources:
                   Action:
                     - "dynamodb:*"
                   Resource: "*"
+                - Effect: Allow
+                  Action:
+                    - "dax:*"
+                  Resource: "*"
 
